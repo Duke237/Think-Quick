@@ -1,51 +1,102 @@
-# Think Quick Project
+# Think Quick App
 
-## Overview
-Think Quick is a web application that combines a React frontend with a Node.js backend. The application is designed to provide an interactive experience for users, allowing them to engage with various game features and statistics.
+A simple web implementation of the Family Feud gameplay experience. Think Quick uses survey-based answers (frequency -> points), provides timers and sounds, and supports a Host and Player interface with real-time updates.
 
-## Project Structure
-The project is divided into two main parts: the client and the server.
+---
 
-### Client
-The client is built using React and is located in the `client` directory. It includes the following key files:
+## Quick Start (easy, no fuss)
 
-- **package.json**: Contains the configuration for the React frontend, including dependencies like React and ReactDOM.
-- **public/index.html**: The main HTML file that serves as the entry point for the React application.
-- **src/index.jsx**: The entry point for the React application that renders the App component.
-- **src/App.jsx**: The main App component that serves as the root of the application.
-- **src/components**: Contains reusable components such as Splash, Header, and Footer.
-- **src/pages/Home.jsx**: The landing page component for the application.
-- **src/styles/App.css**: CSS styles for the application.
-- **src/utils/api.js**: Utility functions for making API calls to the backend.
+Prerequisites
+- Node.js v14+ (Windows PowerShell examples below)
+- MongoDB(optional) if you want persistent survey data. The app can also run with in-memory seeds.
 
-### Server
-The server is built using Node.js and Express, located in the `server` directory. It includes the following key files:
+<!-- In-memory seeds are sample survey data loaded into a temporary, RAM-only MongoDB instance (mongodb-memory-server). It’s perfect for easy local dev/testing because you don’t need a running MongoDB server; the data is ephemeral (lost when the process exits). Below are small changes that let you run the server with in-memory DB + automatic seeding (set USE_IN_MEMORY=true in the server .env).-->
 
-- **package.json**: Contains the configuration for the Node.js backend, including dependencies like Express and Mongoose.
-- **src/index.js**: The entry point for the Node.js application that sets up the Express server.
-- **src/app.js**: Configures the Express application, including middleware and routes.
-- **src/routes/api.js**: Defines the API routes for handling requests and responses.
-- **src/controllers/statsController.js**: Contains the logic for the API routes.
-- **src/models/scoreModel.js**: Defines the data model for scores.
-- **src/config/db.js**: Configuration for connecting to the database.
+Clone and run locally:
+1. Open PowerShell and clone the project
+```
+git clone https://github.com/Duke237/Think-Quick
+cd Think-Quick
+```
 
-## Setup Instructions
+2. Server (in-memory DB — easiest, recommended for quick dev)
+```
+cd server
+npm install
+# ensure server/.env has USE_IN_MEMORY=true
+npm run dev
+```
+- The server starts with an ephemeral in-memory MongoDB and auto-seeds sample questions if the DB is empty.
+- Data is lost when the server stops.
 
-### Client
-1. Navigate to the `client` directory.
-2. Run `npm install` to install the necessary dependencies.
-3. Start the development server with `npm start`.
+Server (persistent MongoDB)
+```
+cd server
+npm install
+# set MONGODB_URL in server/.env and set USE_IN_MEMORY=false (or remove it)
+npm run seed      # seed persistent MongoDB
+npm run dev
+```
 
-### Server
-1. Navigate to the `server` directory.
-2. Run `npm install` to install the necessary dependencies.
-3. Start the server with `npm start`.
+3. Start the client
+```
+cd ..\client
+npm install
+npm start
+```
 
-## Usage
-Once both the client and server are running, you can access the application in your web browser at `http://localhost:3000`. The application will allow users to interact with various features and view their statistics.
+4. Open the app in your browser:
+- Client UI: http://localhost:3000  
+- API / Socket (server): http://localhost:5000 (default)
 
-## Contributing
-Contributions are welcome! Please feel free to submit a pull request or open an issue for any enhancements or bug fixes.
+That's it — open the app and use the Host/Player interfaces.
+
+---
+
+## What this project does (brief)
+- Uses survey answers (sample size ≈ 100) where frequency (0–100) = points.
+- Host reads questions; players answer under a timer (e.g., 20s).
+- Correct answers reveal and award points; wrong answers play a buzzer and add strikes.
+- Each team has 3 strikes per round. Rounds can use multipliers (1x, 2x, 3x). Fast Money round supported.
+- Real-time updates via Socket.IO. Sounds via HTML5 Audio API.
+- Admin tools to create/edit questions and seed data.
+
+---
+
+## Folder layout (simple)
+- /client — React app (UI for Host & Players)
+  - src/, public/, package.json
+- /server — Node + Express API and Socket server
+  - src/, package.json
+- README.md (this file)
+
+---
+
+## Environment (minimal)
+Create `.env` in `/server` (copy .env.example) and set:
+- PORT=5000
+- MONGO_URI=mongodb://localhost:27017/think-quick-app (optional)
+- CLIENT_URL=http://localhost:3000
+
+
+---
+
+## Useful scripts
+From /server
+- npm run dev — start server with nodemon (dev)
+- npm run seed — seed sample questions
+- npm test — run backend tests
+
+From /client
+- npm start — start React dev server
+- npm test — run frontend tests
+
+---
+
 
 ## License
-This project is licensed under the MIT License.
+MIT
+
+Contributors
+- Davida Assene @Davibytes
+- Neba Eric @Duke237
