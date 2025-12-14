@@ -1,14 +1,18 @@
 body {
   margin: 0;
   font-family: 'Arial', sans-serif;
-  background-color: #f0f0f0;
+  background-color: #010830; /* Dark UI Base */
+  color: #C2DEE1; /* Glass Highlight */
 }
 
+/* fallback gradient / UI background (no external image required) */
 .background-image {
-  background-image: url('../Images/background.jpg'); /* Add your background image */
+  background: radial-gradient( circle at 30% 20%, #02B3FA22 0%, transparent 20% ),
+              radial-gradient( circle at 80% 80%, #0AEFFF18 0%, transparent 25% ),
+              linear-gradient(180deg,#010830 0%, #0A1827 60%, #010830 100%);
   background-size: cover;
   background-position: center;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -22,7 +26,7 @@ body {
 }
 
 .btn {
-  background-color: #4CAF50; /* Green */
+  background-color: #E75416; /* Neon Orange */
   border: none;
   color: white;
   padding: 15px 20px;
@@ -37,12 +41,12 @@ body {
 
 .title {
   font-size: 48px;
-  color: #333;
+  color: #FCC73E; /* Golden Yellow */
 }
 
 .subtitle {
   font-size: 24px;
-  color: #666;
+  color: #AB725C; /* Soft Coral */
 }
 
 .game-stats {
@@ -63,7 +67,7 @@ body {
 
 .value {
   font-size: 20px;
-  color: #4CAF50;
+  color: #0AEFFF; /* Electric Cyan */
 }
 
 .question-area {
@@ -72,7 +76,7 @@ body {
 }
 
 .tag {
-  background-color: #ffcc00;
+  background-color: #FCC73E; /* Golden Yellow */
   padding: 5px 10px;
   border-radius: 5px;
 }
@@ -95,7 +99,7 @@ body {
 }
 
 .coming-soon {
-  background-color: #007BFF; /* Blue */
+  background-color: #02B3FA; /* Primary Blue */
   color: white;
   padding: 10px 15px;
   border: none;

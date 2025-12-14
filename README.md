@@ -2,9 +2,18 @@
 
 A simple web implementation of the Family Feud gameplay experience. Think Quick uses survey-based answers (frequency -> points), provides timers and sounds, and supports a Host and Player interface with real-time updates.
 
+### Summary
+
+The above implementation includes:
+- Admin POST endpoints for adding questions.
+- A simple admin UI for question management.
+- Socket.IO integration for real-time updates.
+- Tests for the game controller and seeding.
+- Voice recognition for answer submission.
+
 ---
 
-## Quick Start (easy, no fuss)
+## Quick Start
 
 Prerequisites
 - Node.js v14+ (Windows PowerShell examples below)
@@ -92,11 +101,44 @@ From /client
 - npm test — run frontend tests
 
 ---
+## Admin Interface
+- Navigate to the Admin section to add questions.
+- Fill in the Question ID, Question Text, and Answers with Frequencies.
+- Submit to save the question to the database.
 
+## Real-Time Updates
+- The game uses Socket.IO for real-time updates.
+- Players will see answers revealed and strikes updated in real-time.
+
+## Voice Recognition
+- Players can use voice commands to submit answers.
+- Ensure your microphone is enabled and permissions are granted.
+
+## Testing
+- Run tests using Jest:
+```bash
+npm test
+
+<!-- ## Developer: Adding tech questions
+- Edit seeds: server/src/seeds/data.js — add your tech questions (questionId, text, answers with frequency).
+- Persistent DB:
+  1. Set `USE_IN_MEMORY=false` and `MONGODB_URL` in server/.env
+  2. Run: cd server && npm install && npm run seed
+- In-memory (fast dev):
+  - Set `USE_IN_MEMORY=true` in server/.env and run `npm run dev`. The app auto-seeds the in-memory DB when empty.
+- Or use API:
+  - POST /api/admin/questions (if you enable the admin endpoint) or add via `server/src/seeds/data.js` and re-run the seed.
+
+Fast Money rule implemented:
+- Two players each answer 5 questions, totals are added; if combined total > 100, a +500 bonus is applied and added to the leading team's score.
+
+Notes
+- All answers use frequency as points by default (server calculates points = frequency if omitted).
+- Questions here are tech-related and intentionally not too complex. -->
 
 ## License
 MIT
 
-Contributors
+## Contributors
 - Davida Assene @Davibytes
 - Neba Eric @Duke237

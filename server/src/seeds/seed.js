@@ -2,16 +2,9 @@ require('dotenv').config();
 const { connectDB, disconnectDB } = require('../config/db');
 const data = require('./data');
 const mongoose = require('mongoose');
+const Question = require('../models/Question');
 
-const questionSchema = new mongoose.Schema({
-  questionId: Number,
-  text: String,
-  answers: [{ text: String, frequency: Number, points: Number }],
-});
-const Question = mongoose.models.Question || mongoose.model('Question', questionSchema);
-
-async function run() {
-  const forceInMemory = process.argv.includes('--inmemory');
+async function run(forceInMemory = false) {
   if (forceInMemory) process.env.USE_IN_MEMORY = 'true';
   await connectDB();
   await Question.deleteMany({});
@@ -21,7 +14,12 @@ async function run() {
   process.exit(0);
 }
 
-run().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (require.main === module) {
+  const force = process.argv.includes('--inmemory');
+  run(force).catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
+
+module.exports = run;

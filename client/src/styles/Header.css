@@ -1,0 +1,18 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: linear-gradient(90deg, #0A1827 0%, #010830 100%);
+  color: #C2DEE1;
+}
+.header .logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.header a {
+  color: #02B3FA;
+  text-decoration: none;
+  font-weight: bold;
+}
