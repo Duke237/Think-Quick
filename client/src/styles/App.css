@@ -1,0 +1,110 @@
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #f0f0f0;
+}
+
+.background-image {
+  background-image: url('../Images/background.jpg'); /* Add your background image */
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-buttons {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.btn {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.title {
+  font-size: 48px;
+  color: #333;
+}
+
+.subtitle {
+  font-size: 24px;
+  color: #666;
+}
+
+.game-stats {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  margin: 20px 0;
+}
+
+.stat-box {
+  text-align: center;
+}
+
+.label {
+  display: block;
+  font-weight: bold;
+}
+
+.value {
+  font-size: 20px;
+  color: #4CAF50;
+}
+
+.question-area {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.tag {
+  background-color: #ffcc00;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.bottom-tags {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  margin: 20px 0;
+}
+
+.tag-item {
+  text-align: center;
+}
+
+.footer {
+  position: absolute;
+  bottom: 20px;
+  text-align: center;
+}
+
+.coming-soon {
+  background-color: #007BFF; /* Blue */
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.powered-by {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #999;
+}
