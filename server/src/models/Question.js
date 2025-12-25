@@ -1,23 +1,40 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const AnswerSchema = new mongoose.Schema({
+const answerSchema = new mongoose.Schema({
   text: { type: String, required: true },
-  frequency: { type: Number, required: true }, // 0-100 (points)
-  points: { type: Number }, // derived from frequency if omitted
-  revealed: { type: Boolean, default: false },
+  frequency: { type: Number, required: true, min: 0, max: 100 }
 });
 
-const QuestionSchema = new mongoose.Schema({
-  questionId: { type: Number, required: true, unique: true },
-  text: { type: String, required: true },
-  answers: [AnswerSchema],
+const questionSchema = new mongoose.Schema({
+  question: {
+    type: String,
+    required: true
+  },
+  answers: {
+    type: [answerSchema],
+    validate: {
+      validator: function(answers) {
+        const total = answers.reduce((sum, ans) => sum + ans.frequency, 0);
+        return total === 100;
+      },
+      message: 'Answer frequencies must total 100'
+    }
+  },
+  category: {
+    type: String,
+    default: 'general'
+  },
+  difficulty: {
+    type: String,
+    enum: ['easy', 'medium', 'hard'],
+    default: 'medium'
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  }
+}, {
+  timestamps: true
 });
 
-QuestionSchema.pre('save', function (next) {
-  this.answers.forEach((a) => {
-    if (a.points == null) a.points = a.frequency;
-  });
-  next();
-});
-
-module.exports = mongoose.models.Question || mongoose.model('Question', QuestionSchema);
+export default mongoose.model('Question', questionSchema);
