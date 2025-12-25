@@ -18,6 +18,32 @@ const GameSchema = new mongoose.Schema({
   currentQuestionId: { type: Number, default: null },
   revealedAnswers: [{ text: String, points: Number }],
   phase: { type: String, enum: ['lobby', 'round', 'fast-money', 'finished'], default: 'lobby' },
+  // unique room code (e.g., 6 uppercase alphanumeric chars)
+  code: { type: String, required: true, unique: true, index: true },
+  // status of the game session
+  status: { type: String, enum: ['waiting', 'active', 'finished'], default: 'waiting' },
+  // players who joined the game
+  players: {
+    type: [
+      new mongoose.Schema({
+        name: { type: String, required: true },
+        team: { type: String, enum: ['A','B','none'], default: 'none' },
+        socketId: { type: String, default: null },
+        joinedAt: { type: Date, default: Date.now },
+      })
+    ],
+    default: [],
+  },
+  // optional host socket id to identify the host connection
+  hostSocketId: { type: String, default: null },
+  // which team has current control (A or B)
+  currentTurnTeam: { type: String, enum: ['A','B', null], default: null },
+  // timer state (in seconds)
+  timer: {
+    duration: { type: Number, default: 20 },
+    remaining: { type: Number, default: 0 },
+    running: { type: Boolean, default: false },
+  },
   fastMoney: { type: [FastMoneySchema], default: [] },
   createdAt: { type: Date, default: Date.now },
 });

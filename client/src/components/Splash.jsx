@@ -1,68 +1,87 @@
 import React from 'react';
-import '../styles/Splash.css';
 
 const Splash = () => {
   return (
-    <div className="background-image">
-      <div className="header-buttons">
-        <button className="btn"><i className="icon">🏆</i>Points</button>
-        <button className="btn"><i className="icon">⏰</i>Clock</button>
-        <button className="btn"><i className="icon">🎉</i>Confetti</button>
-        <button className="btn"><i className="icon">📊</i>Leaderboard</button>
-        <button className="btn game-show">Game Show Poster</button>
-      </div>
+    <div className="min-h-screen flex items-center justify-center p-6 bg-[radial-gradient(circle_at_30%_20%,var(--primary)_0%,transparent_20%),radial-gradient(circle_at_80%_80%,var(--electric)_0%,transparent_25%),linear-gradient(180deg,var(--bg)_0%,var(--surface)_60%,var(--bg)_100%)]">
+      <div className="container max-w-6xl mx-auto">
+        <div className="hero-panel">
+          {/* decorative blurred spots */}
+          <div className="glow-spot" style={{ width: 360, height: 360, background: 'radial-gradient(circle, rgba(2,179,250,0.36), transparent)', top: -80, left: -120 }} />
+          <div className="glow-spot" style={{ width: 300, height: 300, background: 'radial-gradient(circle, rgba(252,199,62,0.20), transparent)', bottom: -80, right: -140 }} />
 
-      <h1 className="title">THINK QUICK</h1>
-      <p className="subtitle">It's not just what you know — it's how quick you are!</p>
+          <div className="panel-inner">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex gap-3">
+                <button className="glass-btn">🏆 Points</button>
+                <button className="glass-btn">⏰ Clock</button>
+                <button className="glass-btn">🎉 Confetti</button>
+              </div>
 
-      <div className="game-stats">
-        <div className="stat-box">
-          <img src="Images/streak.png" alt="Streak" />
-          <span className="label">Streak</span>
-          <span className="value">x3</span>
-        </div>
-        <div className="stat-box">
-          <img src="Images/time.png" alt="Time" />
-          <span className="label">Time</span>
-          <span className="value">25s</span>
-        </div>
-        <div className="stat-box">
-          <img src="Images/points.png" alt="Points" />
-          <span className="label">Points</span>
-          <span className="value">250</span>
-        </div>
-        <div className="stat-box">
-          <img src="Images/buzzer.png" alt="Buzzers" />
-          <span className="label">Buzzers</span>
-          <span className="value">Ready</span>
-        </div>
-      </div>
+              <div className="flex items-center gap-4">
+                <button className="bg-gold text-black px-4 py-2 rounded-full shadow-md">Game Show Poster</button>
 
-      <div className="question-area">
-        <div className="tag">Survey</div>
-        <div className="question">
-          Best late-night snack
-          <span className="count">34</span>
-        </div>
-      </div>
+                <div className="progress-ring">
+                  <div className="text-white text-sm">10</div>
+                </div>
+              </div>
+            </div>
 
-      <div className="bottom-tags">
-        <div className="tag-item">
-          <span>Morning ritual</span>
-          <span className="tag-value">Coffee</span>
-        </div>
-        <div className="tag-item">
-          <span>Planet #4</span>
-          <span className="tag-value">Mars</span>
-        </div>
-      </div>
+            <header className="text-center mb-8">
+              <h1 className="text-6xl text-gold font-extrabold tracking-tight drop-shadow-[0_6px_24px_rgba(0,0,0,0.5)]">THINK QUICK</h1>
+              <p className="mt-3 text-lg text-coral">It's not just what you know — it's how quick you are!</p>
+            </header>
 
-      <div className="footer">
-        <button className="coming-soon">
-          <i className="icon">▶️</i>
-          Coming Soon
-        </button>
-        <p className="powered-by">Powered by Your Studio • Play Anywhere, Anytime.</p>
+            <div className="relative grid grid-cols-12 gap-6 items-center">
+              <div className="col-span-4">
+                <div className="card">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="text-sm text-primary font-semibold">Streak</div>
+                      <div className="mt-2 text-2xl text-white font-bold">x3</div>
+                    </div>
+                    <div className="bg-primary text-black rounded-full px-3 py-2">34</div>
+                  </div>
+                </div>
+
+                <div className="mt-4 card">
+                  <div className="text-sm text-primary">Points</div>
+                  <div className="mt-2 text-2xl font-bold">250</div>
+                </div>
+              </div>
+
+              <div className="col-span-4 flex justify-center">
+                <div className="timer-circle">25</div>
+              </div>
+
+              <div className="col-span-4">
+                <div className="card">
+                  <div className="text-sm text-primary">Time</div>
+                  <div className="mt-2 text-2xl font-bold">25s</div>
+                </div>
+
+                <div className="mt-4 card">
+                  <div className="text-sm text-primary">Buzzers</div>
+                  <div className="mt-2 text-2xl font-bold">Ready</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 flex items-center justify-between">
+              <div className="flex gap-3">
+                <div className="tag bg-gold text-black px-3 py-1 rounded-md">Survey</div>
+                <div className="text-white">Best late-night snack <span className="ml-2 bg-white text-black px-2 py-0.5 rounded">34</span></div>
+              </div>
+
+              <div>
+                <button className="coming-soon">▶️ Coming Soon</button>
+              </div>
+            </div>
+
+            <footer className="mt-8 text-center text-sm text-[rgba(255,255,255,0.65)]">
+              Powered by Your Studio • Play Anywhere, Anytime.
+            </footer>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,16 +1,14 @@
 import React from 'react';
-import '../styles/Header.css';
 
 const Header = () => {
   return (
-    <header className="header">
-      <h1 className="logo">Think Quick</h1>
-      <nav className="navigation">
-        <button className="nav-button">Points</button>
-        <button className="nav-button">Clock</button>
-        <button className="nav-button">Confetti</button>
-        <button className="nav-button">Leaderboard</button>
-        <button className="nav-button game-show">Game Show Poster</button>
+    <header className="flex items-center justify-between py-6">
+      <h1 className="text-2xl font-bold text-gold">Think Quick</h1>
+      <nav className="flex gap-3">
+        <button className="glass-btn">Points</button>
+        <button className="glass-btn">Clock</button>
+        <button className="glass-btn">Confetti</button>
+        <button className="glass-btn">Leaderboard</button>
       </nav>
     </header>
   );

@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
-import Clock from './Clock'; // added
+import Clock from './Clock';
 import annyang from 'annyang';
 
 const socket = io();
@@ -9,22 +9,12 @@ const Game = () => {
   const [game, setGame] = useState(null);
 
   useEffect(() => {
-    socket.on('answerRevealed', (data) => {
-      // Update UI with revealed answer
-      console.log('Answer revealed:', data);
-    });
-
-    socket.on('strikeEvent', (data) => {
-      // Update UI with strike event
-      console.log('Strike event:', data);
-    });
+    socket.on('answerRevealed', (data) => console.log('Answer revealed:', data));
+    socket.on('strikeEvent', (data) => console.log('Strike event:', data));
 
     if (annyang) {
       const commands = {
         'I say *answer': (answer) => {
-          // Handle the answer submission
-          console.log('User said:', answer);
-          // Emit answer to server
           socket.emit('submitAnswer', { answer });
         },
       };
@@ -35,25 +25,28 @@ const Game = () => {
     return () => {
       socket.off('answerRevealed');
       socket.off('strikeEvent');
-      if (annyang) {
-        annyang.abort();
-      }
+      if (annyang) annyang.abort();
     };
   }, []);
 
   return (
-    <div style={{ padding: 20, position: 'relative' }}>
-      <h2>Game</h2>
-      {/* small inline clock for the host */}
-      <div style={{ position: 'absolute', right: 24, top: 80 }}>
+    <div className="relative p-6">
+      <h2 className="text-2xl text-gold font-bold">Game</h2>
+
+      <div className="absolute right-6 top-20">
         <Clock initialSeconds={20} compact />
       </div>
 
-      <div>
-        <strong>Game ID:</strong> {game?._id || 'creating...'}
+      <div className="mt-6">
+        <strong className="text-[rgba(255,255,255,0.85)]">Game ID:</strong>
+        <span className="ml-2 text-white">{game?._id || 'creating...'}</span>
       </div>
 
-      {/* Game UI */}
+      <div className="mt-8 card">
+        {/* Placeholder for game content */}
+        <div className="text-primary font-semibold">Question</div>
+        <div className="mt-3 text-lg">What is the capital of France?</div>
+      </div>
     </div>
   );
 };
