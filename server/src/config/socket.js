@@ -1,5 +1,4 @@
 import { Server } from 'socket.io';
-import { handleGameEvents } from '../services/socket.service.js';
 
 export const initializeSocket = (httpServer) => {
   const io = new Server(httpServer, {
@@ -9,16 +8,17 @@ export const initializeSocket = (httpServer) => {
     }
   });
 
-  // Namespace per game code
   io.on('connection', (socket) => {
     console.log(`🔌 Client connected: ${socket.id}`);
 
     socket.on('join-game', (gameCode) => {
       socket.join(gameCode);
       console.log(`👤 Socket ${socket.id} joined game: ${gameCode}`);
-      
-      // Set up game-specific event handlers
-      handleGameEvents(io, socket, gameCode);
+    });
+
+    socket.on('leave-game', (gameCode) => {
+      socket.leave(gameCode);
+      console.log(`👋 Socket ${socket.id} left game: ${gameCode}`);
     });
 
     socket.on('disconnect', () => {

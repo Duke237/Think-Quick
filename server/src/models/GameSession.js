@@ -78,7 +78,6 @@ const gameSessionSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Generate unique game code
 gameSessionSchema.statics.generateGameCode = function() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let code = '';
@@ -88,7 +87,6 @@ gameSessionSchema.statics.generateGameCode = function() {
   return code;
 };
 
-// Calculate round multiplier
 gameSessionSchema.methods.getRoundMultiplier = function() {
   return this.currentRound;
 };

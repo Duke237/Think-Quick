@@ -14,4 +14,10 @@ export const gameAPI = {
   getGame: (gameCode) => api.get(`/games/${gameCode}`)
 };
 
+export const playerAPI = {
+  registerPlayer: (gameCode, name, teamId) => 
+    api.post(`/players/${gameCode}`, { name, teamId }),
+  getPlayers: (gameCode) => api.get(`/players/${gameCode}`)
+};
+
 export default api;
