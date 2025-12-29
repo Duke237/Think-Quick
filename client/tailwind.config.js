@@ -1,30 +1,53 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
-    './src/**/*.{js,jsx,ts,tsx}',
-    './public/index.html'
+    "./index.html",
+    "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {
       colors: {
-        primary: '#02b3fa',      // bright cyan (glow)
-        electric: '#0aefff',     // electric cyan
-        gold: '#fcc73e',         // golden accent
-        neon: '#e75416',         // neon orange
-        coral: '#ab725c',        // soft coral
-        bg: '#010830',           // deep background
-        surface: '#0a1827',      // panel background
-        glass: 'rgba(2,179,250,0.12)'
+        'bg-primary': '#0A1628',
+        'bg-secondary': '#0D1B2E',
+        'bg-tertiary': '#1A2942',
+        'cyan-primary': '#00E5FF',
+        'cyan-glow': '#00D9FF',
+        'cyan-light': '#5FF5FF',
+        'cyan-dark': '#00B8D4',
+        'orange-primary': '#FF9F1C',
+        'orange-glow': '#FFB347',
+        'yellow-accent': '#F5B942',
+        'amber': '#FFC107',
+        'text-primary': '#FFFFFF',
+        'text-secondary': '#E0F7FF',
+        'text-muted': '#8BA9C4',
       },
-      fontFamily: {
-        sans: ['Inter', 'Arial', 'sans-serif']
+      backgroundImage: {
+        'gradient-orb': 'radial-gradient(circle, #00E5FF 0%, #0A1628 70%)',
+        'gradient-cyan': 'linear-gradient(135deg, #00E5FF, #00B8D4)',
+        'gradient-warm': 'linear-gradient(135deg, #FF9F1C, #F5B942)',
       },
-      container: {
-        center: true,
-        padding: '1rem'
+      boxShadow: {
+        'glow-cyan': '0 0 20px rgba(0, 229, 255, 0.5)',
+        'glow-orange': '0 0 20px rgba(255, 159, 28, 0.5)',
+        'deep': '0 10px 40px rgba(0, 0, 0, 0.5)',
+      },
+      animation: {
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'float': 'float 6s ease-in-out infinite',
+        'glow': 'glow 2s ease-in-out infinite',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-20px)' },
+        },
+        glow: {
+          '0%, 100%': { opacity: '1', filter: 'brightness(1)' },
+          '50%': { opacity: '0.8', filter: 'brightness(1.2)' },
+        }
       }
     },
   },
   plugins: [],
 }
-

@@ -10,13 +10,8 @@ const teamSchema = new mongoose.Schema({
 const playerSchema = new mongoose.Schema({
   id: { type: String, required: true },
   name: { type: String, required: true },
-  teamId: { type: Number, required: true }
-});
-
-const revealedAnswerSchema = new mongoose.Schema({
-  text: { type: String, required: true },
-  frequency: { type: Number, required: true },
-  revealedAt: { type: Date, default: Date.now }
+  teamId: { type: Number, required: true },
+  joinedAt: { type: Date, default: Date.now }
 });
 
 const gameSessionSchema = new mongoose.Schema({
@@ -33,8 +28,8 @@ const gameSessionSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['setup', 'playing', 'round-end', 'game-over'],
-    default: 'setup'
+    enum: ['lobby', 'playing', 'clock', 'round-end', 'game-over'],
+    default: 'lobby'
   },
   currentRound: {
     type: Number,
@@ -52,19 +47,30 @@ const gameSessionSchema = new mongoose.Schema({
     min: 0,
     max: 3
   },
-  teams: [teamSchema],
+  teams: {
+    type: [teamSchema],
+    default: [
+      { id: 1, name: 'Team Alpha', score: 0, color: '#00E5FF' },
+      { id: 2, name: 'Team Beta', score: 0, color: '#FF9F1C' }
+    ]
+  },
   players: [playerSchema],
   currentQuestion: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Question'
+    ref: 'Question',
+    default: null
   },
-  revealedAnswers: [revealedAnswerSchema],
+  revealedAnswers: [{
+    text: String,
+    frequency: Number,
+    revealedAt: { type: Date, default: Date.now }
+  }],
   timer: {
-    value: { type: Number, default: 30 },
+    value: { type: Number, default: 25 },
     isRunning: { type: Boolean, default: false }
   },
   settings: {
-    roundDuration: { type: Number, default: 30 },
+    roundDuration: { type: Number, default: 25 },
     maxStrikes: { type: Number, default: 3 },
     voiceControlEnabled: { type: Boolean, default: false }
   }
@@ -85,21 +91,6 @@ gameSessionSchema.statics.generateGameCode = function() {
 // Calculate round multiplier
 gameSessionSchema.methods.getRoundMultiplier = function() {
   return this.currentRound;
-};
-
-// Add player
-gameSessionSchema.methods.addPlayer = function(name, teamId) {
-  const playerId = `player_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  this.players.push({ id: playerId, name, teamId });
-  return playerId;
-};
-
-// Award points
-gameSessionSchema.methods.awardPoints = function(teamId, points) {
-  const team = this.teams.find(t => t.id === teamId);
-  if (team) {
-    team.score += points * this.getRoundMultiplier();
-  }
 };
 
 export default mongoose.model('GameSession', gameSessionSchema);
