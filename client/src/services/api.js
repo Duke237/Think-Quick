@@ -11,7 +11,8 @@ const api = axios.create({
 
 export const gameAPI = {
   createGame: (hostId) => api.post('/games', { hostId }),
-  getGame: (gameCode) => api.get(`/games/${gameCode}`)
+  getGame: (gameCode) => api.get(`/games/${gameCode}`),
+  startGame: (gameCode, hostId) => api.post(`/games/${gameCode}/start`, { hostId }) // NEW
 };
 
 export const playerAPI = {

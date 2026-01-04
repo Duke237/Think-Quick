@@ -27,14 +27,12 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 900;
 }
 
-/* Glass effect */
 .glass {
   background: rgba(10, 22, 40, 0.6);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(0, 229, 255, 0.3);
 }
 
-/* Glow animations */
 @keyframes pulse-glow {
   0%, 100% {
     box-shadow: 0 0 20px rgba(0, 229, 255, 0.5);
