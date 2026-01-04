@@ -6,6 +6,7 @@ import { connectDB } from './config/db.js';
 import { initializeSocket } from './config/socket.js';
 import gameRoutes from './routes/game.routes.js';
 import playerRoutes from './routes/player.routes.js';
+import questionRoutes from './routes/question.routes.js'; // NEW
 import { errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
@@ -24,6 +25,7 @@ app.set('io', io);
 
 app.use('/api/games', gameRoutes);
 app.use('/api/players', playerRoutes);
+app.use('/api/questions', questionRoutes); // NEW
 
 app.get('/health', (req, res) => {
   res.json({ 
