@@ -121,7 +121,6 @@ export const startGame = async (req, res) => {
   }
 };
 
-// ... existing imports and functions ...
 
 // NEW: Timer control functions
 export const startTimer = async (req, res) => {

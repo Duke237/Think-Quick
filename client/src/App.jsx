@@ -5,6 +5,7 @@ import HostSetup from './pages/HostSetup';
 import JoinGame from './pages/JoinGame';
 import PlayerRegistration from './pages/PlayerRegistration';
 import Lobby from './pages/Lobby';
+import ClockPage from './pages/ClockPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/join" element={<JoinGame />} />
         <Route path="/register/:code" element={<PlayerRegistration />} />
         <Route path="/lobby/:code" element={<Lobby />} />
+        <Route path="/clock/:code" element={<ClockPage />} />
       </Routes>
     </BrowserRouter>
   );

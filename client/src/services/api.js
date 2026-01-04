@@ -12,7 +12,13 @@ const api = axios.create({
 export const gameAPI = {
   createGame: (hostId) => api.post('/games', { hostId }),
   getGame: (gameCode) => api.get(`/games/${gameCode}`),
-  startGame: (gameCode, hostId) => api.post(`/games/${gameCode}/start`, { hostId }) // NEW
+  startGame: (gameCode, hostId) => api.post(`/games/${gameCode}/start`, { hostId }),
+  
+  // Timer controls
+  startTimer: (gameCode) => api.post(`/games/${gameCode}/timer/start`),
+  stopTimer: (gameCode) => api.post(`/games/${gameCode}/timer/stop`),
+  resetTimer: (gameCode) => api.post(`/games/${gameCode}/timer/reset`),
+  timerEnded: (gameCode) => api.post(`/games/${gameCode}/timer/ended`)
 };
 
 export const playerAPI = {
