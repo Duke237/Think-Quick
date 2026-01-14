@@ -148,7 +148,7 @@ const HostSetup = () => {
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-cyan-primary mt-1">✓</span>
-                <span>You'll have full control over the game flow</span>
+                <span>You'll have full control over the game flow!!</span>
               </li>
             </ul>
           </div>
