@@ -10,7 +10,6 @@ The above implementation includes:
 - Socket.IO integration for real-time updates.
 - Tests for the game controller and seeding.
 - Voice recognition for answer submission.
--Voice recognition for answer submission
 
 ---
 
