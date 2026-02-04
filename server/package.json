@@ -4,12 +4,15 @@
   "description": "Think Quick Game Server - Family Feud style game",
   "main": "src/server.js",
   "scripts": {
-    "dev": "nodemon src/server.js",
     "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
     "seed": "node src/seeds/seedDB.js",
-    "test": "jest --coverage"
+    "test": "jest --coverage --detectOpenHandles",
+    "test:watch": "jest --watch",
+    "lint": "eslint src/**/*.js",
+    "format": "prettier --write \"src/**/*.js\""
   },
-  "keywords": ["game", "quiz", "real-time", "socket.io"],
+  "keywords": ["game", "quiz", "real-time", "socket.io", "family-feud"],
   "author": "Davida Assene, Neba Eric",
   "license": "MIT",
   "dependencies": {
@@ -23,6 +26,17 @@
   "devDependencies": {
     "nodemon": "^3.0.1",
     "jest": "^29.7.0",
-    "supertest": "^6.3.3"
+    "supertest": "^6.3.3",
+    "eslint": "^8.52.0",
+    "prettier": "^3.0.3"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
   }
 }
+
+
+
+
+
