@@ -1,94 +1,149 @@
-import mongoose from 'mongoose';
-
-const teamSchema = new mongoose.Schema({
-  id: { type: Number, required: true },
-  name: { type: String, required: true },
-  score: { type: Number, default: 0 },
-  color: { type: String, required: true }
-});
+const mongoose = require('mongoose');
 
 const playerSchema = new mongoose.Schema({
-  id: { type: String, required: true },
-  name: { type: String, required: true },
-  teamId: { type: Number, required: true },
-  joinedAt: { type: Date, default: Date.now }
-});
-
-const gameSessionSchema = new mongoose.Schema({
-  gameCode: {
+  name: {
     type: String,
     required: true,
-    unique: true,
-    uppercase: true,
-    length: 6
+    trim: true
   },
-  hostId: {
+  team: {
+    type: String,
+    required: true,
+    enum: ['A', 'B']
+  },
+  socketId: {
+    type: String
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  }
+});
+
+const roundSchema = new mongoose.Schema({
+  roundNumber: {
+    type: Number,
+    required: true
+  },
+  questionId: {
     type: String,
     required: true
   },
-  status: {
-    type: String,
-    enum: ['lobby', 'playing', 'clock', 'round-end', 'game-over'],
-    default: 'lobby'
-  },
-  currentRound: {
+  multiplier: {
     type: Number,
-    default: 1,
-    min: 1,
-    max: 3
+    default: 1
   },
-  currentTeamIndex: {
+  teamAScore: {
+    type: Number,
+    default: 0
+  },
+  teamBScore: {
     type: Number,
     default: 0
   },
   strikes: {
     type: Number,
-    default: 0,
-    min: 0,
-    max: 3
+    default: 0
   },
-  teams: {
-    type: [teamSchema],
-    default: [
-      { id: 1, name: 'Team Alpha', score: 0, color: '#00E5FF' },
-      { id: 2, name: 'Team Beta', score: 0, color: '#FF9F1C' }
-    ]
-  },
-  players: [playerSchema],
-  currentQuestion: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Question',
-    default: null
+  activeTeam: {
+    type: String,
+    enum: ['A', 'B']
   },
   revealedAnswers: [{
     text: String,
-    frequency: Number,
-    revealedAt: { type: Date, default: Date.now }
+    points: Number
   }],
-  timer: {
-    value: { type: Number, default: 25 },
-    isRunning: { type: Boolean, default: false }
+  status: {
+    type: String,
+    enum: ['pending', 'active', 'completed'],
+    default: 'pending'
+  },
+  startedAt: Date,
+  completedAt: Date
+});
+
+const gameSessionSchema = new mongoose.Schema({
+  sessionId: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  hostSocketId: {
+    type: String,
+    required: true
+  },
+  players: [playerSchema],
+  rounds: [roundSchema],
+  currentRound: {
+    type: Number,
+    default: 0
+  },
+  teamAScore: {
+    type: Number,
+    default: 0
+  },
+  teamBScore: {
+    type: Number,
+    default: 0
+  },
+  status: {
+    type: String,
+    enum: ['waiting', 'active', 'paused', 'completed'],
+    default: 'waiting'
+  },
+  gameMode: {
+    type: String,
+    enum: ['standard', 'fastMoney'],
+    default: 'standard'
   },
   settings: {
-    roundDuration: { type: Number, default: 25 },
-    maxStrikes: { type: Number, default: 3 },
-    voiceControlEnabled: { type: Boolean, default: false }
-  }
+    maxStrikes: {
+      type: Number,
+      default: 3
+    },
+    timerSeconds: {
+      type: Number,
+      default: 20
+    },
+    roundMultipliers: {
+      type: [Number],
+      default: [1, 2, 3]
+    }
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  completedAt: Date
 }, {
   timestamps: true
 });
 
-gameSessionSchema.statics.generateGameCode = function() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let code = '';
-  for (let i = 0; i < 6; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
+// Method to add a player
+gameSessionSchema.methods.addPlayer = function(name, team, socketId) {
+  const player = { name, team, socketId, isActive: true };
+  this.players.push(player);
+  return this.save();
 };
 
-gameSessionSchema.methods.getRoundMultiplier = function() {
-  return this.currentRound;
+// Method to start a new round
+gameSessionSchema.methods.startRound = function(questionId, multiplier = 1, activeTeam = 'A') {
+  const roundNumber = this.currentRound + 1;
+  this.rounds.push({
+    roundNumber,
+    questionId,
+    multiplier,
+    activeTeam,
+    status: 'active',
+    startedAt: new Date()
+  });
+  this.currentRound = roundNumber;
+  return this.save();
 };
 
-export default mongoose.model('GameSession', gameSessionSchema);
+// Method to get current round
+gameSessionSchema.methods.getCurrentRound = function() {
+  return this.rounds.find(r => r.roundNumber === this.currentRound);
+};
+
+module.exports = mongoose.model('GameSession', gameSessionSchema);

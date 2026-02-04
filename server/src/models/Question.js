@@ -1,41 +1,85 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const answerSchema = new mongoose.Schema({
-  text: { type: String, required: true },
-  frequency: { type: Number, required: true, min: 0, max: 100 }
+  text: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  frequency: {
+    type: Number,
+    required: true,
+    min: 0,
+    max: 100
+  },
+  points: {
+    type: Number,
+    default: function() {
+      return this.frequency; // Points = frequency by default
+    }
+  },
+  revealed: {
+    type: Boolean,
+    default: false
+  }
 });
 
 const questionSchema = new mongoose.Schema({
-  question: {
+  questionId: {
     type: String,
-    required: true
+    required: true,
+    unique: true,
+    trim: true
   },
-  answers: {
-    type: [answerSchema],
-    validate: {
-      validator: function(answers) {
-        const total = answers.reduce((sum, ans) => sum + ans.frequency, 0);
-        return total === 100;
-      },
-      message: 'Answer frequencies must total 100'
-    }
+  text: {
+    type: String,
+    required: true,
+    trim: true
   },
   category: {
     type: String,
-    enum: ['Programming', 'DevOps', 'Cloud', 'Databases', 'Frameworks', 'Security', 'General'],
-    default: 'General'
+    default: 'General',
+    trim: true
+  },
+  answers: [answerSchema],
+  sampleSize: {
+    type: Number,
+    default: 100
   },
   difficulty: {
     type: String,
-    enum: ['easy', 'medium', 'hard', 'expert'],
+    enum: ['easy', 'medium', 'hard'],
     default: 'medium'
   },
-  isActive: {
+  isFastMoney: {
     type: Boolean,
-    default: true
+    default: false
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 }, {
   timestamps: true
 });
 
-export default mongoose.model('Question', questionSchema);
+// Validate that answer frequencies sum to 100 (or close to it)
+questionSchema.pre('save', function(next) {
+  if (this.answers && this.answers.length > 0) {
+    const totalFrequency = this.answers.reduce((sum, answer) => sum + answer.frequency, 0);
+    if (Math.abs(totalFrequency - 100) > 5) { // Allow 5% tolerance
+      return next(new Error(`Answer frequencies must sum to ~100. Current total: ${totalFrequency}`));
+    }
+  }
+  next();
+});
+
+// Sort answers by frequency (highest first) before saving
+questionSchema.pre('save', function(next) {
+  if (this.answers) {
+    this.answers.sort((a, b) => b.frequency - a.frequency);
+  }
+  next();
+});
+
+module.exports = mongoose.model('Question', questionSchema);
