@@ -1,5 +1,9 @@
 import axios from 'axios';
-import { API_BASE_URL } from '@utils/constants';
+
+// Use direct value instead of alias import for now
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+// Rest of the file stays the same...
 
 // Create axios instance
 const api = axios.create({
@@ -13,11 +17,6 @@ const api = axios.create({
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
-    // Add auth token if exists (future feature)
-    // const token = localStorage.getItem('token');
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
     return config;
   },
   (error) => {
@@ -96,6 +95,18 @@ export const gameAPI = {
 
   getStats: () => {
     return api.get('/api/games/stats/summary');
+  }
+};
+
+// ==================== PLAYER API ====================
+
+export const playerAPI = {
+  getStats: (playerId) => {
+    return api.get(`/api/players/stats/${playerId}`);
+  },
+
+  getLeaderboard: () => {
+    return api.get('/api/players/leaderboard');
   }
 };
 

@@ -1,134 +1,81 @@
-import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Users, Play } from 'lucide-react';
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    // Trigger entrance animation
-    setTimeout(() => setIsVisible(true), 100);
-  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-tertiary relative overflow-hidden">
-      
-      {/* Animated Background Orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Large cyan orb */}
-        <div 
-          className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full opacity-30 animate-pulse-slow"
-          style={{
-            background: 'radial-gradient(circle, rgba(0, 229, 255, 0.4) 0%, transparent 70%)',
-            filter: 'blur(60px)'
-          }}
-        />
-        
-        {/* Small floating orbs */}
-        <div 
-          className="absolute top-1/3 left-1/4 w-64 h-64 rounded-full bg-cyan-primary/20 blur-3xl animate-float"
-          style={{ animationDelay: '0s' }}
-        />
-        <div 
-          className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-orange-primary/20 blur-3xl animate-float"
-          style={{ animationDelay: '1s' }}
-        />
-        <div 
-          className="absolute top-2/3 right-1/3 w-48 h-48 rounded-full bg-yellow-accent/20 blur-3xl animate-float"
-          style={{ animationDelay: '2s' }}
-        />
-      </div>
-
-      {/* Main Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6">
-        
-        {/* Logo/Brand Section */}
-        <div 
-          className={`text-center mb-16 transition-all duration-1000 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'
-          }`}
-        >
-          {/* Glowing Orb with Icon */}
-          <div className="relative inline-block mb-8">
-            <div className="absolute inset-0 rounded-full bg-cyan-primary/30 blur-2xl animate-pulse-slow" />
-            <div className="relative w-48 h-48 rounded-full bg-gradient-to-br from-cyan-primary/20 to-orange-primary/20 border-4 border-cyan-primary/50 flex items-center justify-center shadow-glow-cyan">
-              <Zap className="w-24 h-24 text-cyan-primary animate-glow" strokeWidth={2.5} />
-            </div>
-          </div>
-
-          {/* App Title */}
-          <h1 
-            className="text-8xl md:text-9xl font-black mb-4 tracking-tight"
-            style={{
-              background: 'linear-gradient(135deg, #00E5FF 0%, #5FF5FF 50%, #00B8D4 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              filter: 'drop-shadow(0 0 30px rgba(0, 229, 255, 0.5))'
-            }}
-          >
-            THINK QUICK
+    <div className="min-h-screen bg-bg-primary flex items-center justify-center p-8">
+      <div className="max-w-6xl w-full">
+        {/* Title */}
+        <div className="text-center mb-16">
+          <h1 className="text-7xl font-bold mb-4 bg-gradient-cyan bg-clip-text text-transparent animate-glow">
+            Think Quick
           </h1>
-
-          <p className="text-2xl md:text-3xl text-text-secondary font-semibold tracking-wide">
-            It's not just what you know — it's how{' '}
-            <span className="text-orange-primary font-bold">quick</span> you are!
+          <p className="text-2xl text-text-secondary">
+            Family Feud Style Game Show
           </p>
         </div>
 
-        {/* Action Buttons */}
-        <div 
-          className={`flex flex-col md:flex-row gap-6 transition-all duration-1000 delay-300 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-          }`}
-        >
-          {/* Host Game Button */}
+        {/* Game Mode Selection */}
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
+          {/* Live/Onsite Mode */}
           <button
-            onClick={() => navigate('/host')}
-            className="group relative px-12 py-6 bg-gradient-to-r from-cyan-primary to-cyan-dark rounded-2xl overflow-hidden transition-all duration-300 hover:scale-110 hover:shadow-glow-cyan"
+            onClick={() => navigate('/live/setup')}
+            className="bg-gradient-cyan text-bg-primary font-bold text-xl py-12 px-8 rounded-2xl
+                     shadow-glow-cyan hover:scale-105 transition-transform group"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-light to-cyan-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="relative flex items-center gap-4">
-              <Users className="w-8 h-8 text-bg-primary" strokeWidth={2.5} />
-              <div className="text-left">
-                <div className="text-2xl font-black text-bg-primary">HOST GAME</div>
-                <div className="text-sm text-bg-primary/80 font-semibold">Create a new session</div>
-              </div>
+            <div className="text-5xl mb-4">TV</div>
+            <div className="text-2xl mb-2">Live Game Show</div>
+            <div className="text-sm opacity-80 mt-4 text-left">
+              <div className="mb-2">Perfect for:</div>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Live events & presentations</li>
+                <li>Classrooms & team building</li>
+                <li>One host, one screen</li>
+                <li>No player devices needed</li>
+              </ul>
             </div>
           </button>
 
-          {/* Join Game Button */}
+          {/* Online Mode */}
           <button
-            onClick={() => navigate('/join')}
-            className="group relative px-12 py-6 glass rounded-2xl border-2 border-cyan-primary/50 overflow-hidden transition-all duration-300 hover:scale-110 hover:border-orange-primary hover:shadow-glow-orange"
+            onClick={() => navigate('/online/mode-select')}
+            className="bg-gradient-warm text-bg-primary font-bold text-xl py-12 px-8 rounded-2xl
+                     shadow-glow-orange hover:scale-105 transition-transform"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-primary to-yellow-accent opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
-            <div className="relative flex items-center gap-4">
-              <Play className="w-8 h-8 text-cyan-primary group-hover:text-orange-primary transition-colors" strokeWidth={2.5} />
-              <div className="text-left">
-                <div className="text-2xl font-black text-text-primary">JOIN GAME</div>
-                <div className="text-sm text-text-secondary font-semibold">Enter game code</div>
-              </div>
+            <div className="text-5xl mb-4">WIFI</div>
+            <div className="text-2xl mb-2">Online Multiplayer</div>
+            <div className="text-sm opacity-80 mt-4 text-left">
+              <div className="mb-2">Perfect for:</div>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Remote team games</li>
+                <li>Players on their devices</li>
+                <li>Join with session code</li>
+                <li>Play from anywhere</li>
+              </ul>
             </div>
           </button>
         </div>
 
-        {/* Footer */}
-        <div 
-          className={`mt-20 text-center transition-all duration-1000 delay-500 ${
-            isVisible ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
-          <p className="text-text-muted font-semibold text-lg">
-            Powered by Your Studio • Play Anywhere. Anytime.
-          </p>
+        {/* Features */}
+        <div className="grid md:grid-cols-3 gap-8 text-text-muted text-center">
+          <div>
+            <div className="text-4xl mb-2"></div>
+            <div className="font-semibold text-text-secondary">Real-Time</div>
+            <div className="text-sm">Live gameplay updates</div>
+          </div>
+          <div>
+            <div className="text-4xl mb-2"></div>
+            <div className="font-semibold text-text-secondary">Voice Control</div>
+            <div className="text-sm">Hands-free timer control</div>
+          </div>
+          <div>
+            <div className="text-4xl mb-2"></div>
+            <div className="font-semibold text-text-secondary">Fast Money</div>
+            <div className="text-sm">Bonus round included</div>
+          </div>
         </div>
       </div>
-
-      {/* Decorative Speed Lines (like Image 2) */}
-      <div className="absolute top-1/2 right-0 w-1/2 h-1 bg-gradient-to-r from-transparent via-orange-primary to-transparent opacity-30 blur-sm" />
-      <div className="absolute top-1/2 right-0 w-1/3 h-0.5 bg-gradient-to-r from-transparent via-cyan-primary to-transparent opacity-50 translate-y-4" />
     </div>
   );
 };

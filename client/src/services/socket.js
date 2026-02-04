@@ -1,5 +1,49 @@
 import { io } from 'socket.io-client';
-import { SOCKET_URL, SOCKET_EVENTS } from '@utils/constants';
+
+// Direct imports instead of alias
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+
+// Copy SOCKET_EVENTS here or import from constants with relative path
+const SOCKET_EVENTS = {
+  CONNECTION: 'connection',
+  DISCONNECT: 'disconnect',
+  HOST_CREATE_GAME: 'host:create-game',
+  HOST_START_GAME: 'host:start-game',
+  HOST_LOAD_QUESTION: 'host:load-question',
+  HOST_SUBMIT_ANSWER: 'host:submit-answer',
+  HOST_SWITCH_TEAM: 'host:switch-team',
+  HOST_END_ROUND: 'host:end-round',
+  HOST_START_FAST_MONEY: 'host:start-fast-money',
+  HOST_SUBMIT_FAST_MONEY: 'host:submit-fast-money',
+  HOST_END_GAME: 'host:end-game',
+  TIMER_START: 'timer:start',
+  TIMER_STOP: 'timer:stop',
+  TIMER_RESET: 'timer:reset',
+  PLAYER_JOIN: 'player:join',
+  PLAYER_REGISTER: 'player:register',
+  PLAYER_SUBMIT_ANSWER: 'player:submit-answer',
+  GAME_CREATED: 'game:created',
+  GAME_STARTED: 'game:started',
+  GAME_STATE_UPDATE: 'game:state-update',
+  QUESTION_LOADED: 'game:question-loaded',
+  ANSWER_REVEALED: 'game:answer-revealed',
+  ANSWER_WRONG: 'game:answer-wrong',
+  STRIKE_ADDED: 'game:strike-added',
+  TEAM_SWITCHED: 'game:team-switched',
+  ROUND_COMPLETED: 'game:round-completed',
+  SCORE_UPDATE: 'game:score-update',
+  GAME_ENDED: 'game:ended',
+  PLAYER_JOINED: 'player:joined',
+  PLAYER_LEFT: 'player:left',
+  TIMER_TICK: 'timer:tick',
+  TIMER_COMPLETE: 'timer:complete',
+  TIMER_UPDATE: 'timer:update',
+  FAST_MONEY_STARTED: 'fast-money:started',
+  FAST_MONEY_ANSWER: 'fast-money:answer',
+  FAST_MONEY_RESULTS: 'fast-money:results',
+  ERROR: 'error',
+  GAME_ERROR: 'game:error'
+};
 
 class SocketService {
   constructor() {
@@ -7,9 +51,6 @@ class SocketService {
     this.connected = false;
   }
 
-  /**
-   * Connect to Socket.IO server
-   */
   connect() {
     if (this.socket?.connected) {
       console.log('Socket already connected');
@@ -40,9 +81,6 @@ class SocketService {
     return this.socket;
   }
 
-  /**
-   * Disconnect from server
-   */
   disconnect() {
     if (this.socket) {
       this.socket.disconnect();
@@ -52,9 +90,6 @@ class SocketService {
     }
   }
 
-  /**
-   * Emit event to server
-   */
   emit(event, data, callback) {
     if (!this.socket) {
       console.error('Socket not connected');
@@ -63,9 +98,6 @@ class SocketService {
     this.socket.emit(event, data, callback);
   }
 
-  /**
-   * Listen to event from server
-   */
   on(event, callback) {
     if (!this.socket) {
       console.error('Socket not connected');
@@ -74,17 +106,11 @@ class SocketService {
     this.socket.on(event, callback);
   }
 
-  /**
-   * Remove event listener
-   */
   off(event, callback) {
     if (!this.socket) return;
     this.socket.off(event, callback);
   }
 
-  /**
-   * Listen to event once
-   */
   once(event, callback) {
     if (!this.socket) {
       console.error('Socket not connected');
@@ -93,22 +119,15 @@ class SocketService {
     this.socket.once(event, callback);
   }
 
-  /**
-   * Get socket ID
-   */
   getId() {
     return this.socket?.id;
   }
 
-  /**
-   * Check if connected
-   */
   isConnected() {
     return this.connected && this.socket?.connected;
   }
 
-  // ==================== HOST METHODS ====================
-
+  // Host methods
   createGame(settings, callback) {
     this.emit(SOCKET_EVENTS.HOST_CREATE_GAME, settings, callback);
   }
@@ -157,8 +176,7 @@ class SocketService {
     this.emit(SOCKET_EVENTS.HOST_END_GAME, { sessionId }, callback);
   }
 
-  // ==================== TIMER METHODS ====================
-
+  // Timer methods
   startTimer(sessionId, duration, callback) {
     this.emit(SOCKET_EVENTS.TIMER_START, { sessionId, duration }, callback);
   }
@@ -171,8 +189,7 @@ class SocketService {
     this.emit(SOCKET_EVENTS.TIMER_RESET, { sessionId, duration }, callback);
   }
 
-  // ==================== PLAYER METHODS ====================
-
+  // Player methods
   joinGame(sessionId, callback) {
     this.emit(SOCKET_EVENTS.PLAYER_JOIN, { sessionId }, callback);
   }
@@ -193,7 +210,6 @@ class SocketService {
   }
 }
 
-// Singleton instance
 const socketService = new SocketService();
 
 export default socketService;
