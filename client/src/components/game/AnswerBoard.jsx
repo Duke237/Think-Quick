@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card } from '../ui/Card';
+import Card from '../ui/Card';  // Changed from { Card }
 
 const AnswerSlot = ({ answer, index, isRevealed, onReveal }) => {
   const [showReveal, setShowReveal] = useState(false);

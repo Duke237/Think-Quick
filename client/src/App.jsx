@@ -12,6 +12,7 @@ import Lobby from "./pages/Online/Lobby";
 
 // Live Mode
 import LiveSetup from "./pages/Live/LiveSetup";
+import LiveGameBoard from "./pages/Live/LiveGameBoard";
 
 // Shared
 import ClockPage from "./pages/ClockPage";
@@ -32,6 +33,7 @@ function App() {
 
         {/* Live Mode Routes */}
         <Route path="/live/setup" element={<LiveSetup />} />
+        <Route path="/live/game" element={<LiveGameBoard />} />
 
         {/* Utility */}
         <Route path="/clock" element={<ClockPage />} />
