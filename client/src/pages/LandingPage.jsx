@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Button, Card } from '../components';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -7,7 +8,7 @@ const LandingPage = () => {
     <div className="min-h-screen bg-bg-primary flex items-center justify-center p-8">
       <div className="max-w-6xl w-full">
         {/* Title */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 animate-fade-in">
           <h1 className="text-7xl font-bold mb-4 bg-gradient-cyan bg-clip-text text-transparent animate-glow">
             Think Quick
           </h1>
@@ -19,59 +20,91 @@ const LandingPage = () => {
         {/* Game Mode Selection */}
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
           {/* Live/Onsite Mode */}
-          <button
+          <Card
+            variant="cyan"
+            glow
+            padding="large"
+            className="cursor-pointer hover:scale-105 transition-transform animate-scale-in"
             onClick={() => navigate('/live/setup')}
-            className="bg-gradient-cyan text-bg-primary font-bold text-xl py-12 px-8 rounded-2xl
-                     shadow-glow-cyan hover:scale-105 transition-transform group"
           >
-            <div className="text-5xl mb-4">TV</div>
-            <div className="text-2xl mb-2">Live Game Show</div>
-            <div className="text-sm opacity-80 mt-4 text-left">
-              <div className="mb-2">Perfect for:</div>
-              <ul className="list-disc list-inside space-y-1">
-                <li>Live events & presentations</li>
-                <li>Classrooms & team building</li>
-                <li>One host, one screen</li>
-                <li>No player devices needed</li>
-              </ul>
+            <div className="text-center">
+              <div className="text-6xl mb-6 text-cyan-primary">DISPLAY</div>
+              <h2 className="text-3xl font-bold text-cyan-primary mb-4">Live Game Show</h2>
+              <p className="text-text-secondary mb-6">
+                Perfect for live events, classrooms, and presentations
+              </p>
+              <div className="text-left space-y-2 text-text-muted">
+                <div className="flex items-start gap-2">
+                  <span className="text-cyan-primary">CHECK</span>
+                  <span>One host, one screen</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-cyan-primary">CHECK</span>
+                  <span>No player devices needed</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-cyan-primary">CHECK</span>
+                  <span>TV/projector friendly</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-cyan-primary">CHECK</span>
+                  <span>Manual answer input</span>
+                </div>
+              </div>
             </div>
-          </button>
+          </Card>
 
           {/* Online Mode */}
-          <button
+          <Card
+            variant="orange"
+            glow
+            padding="large"
+            className="cursor-pointer hover:scale-105 transition-transform animate-scale-in"
             onClick={() => navigate('/online/mode-select')}
-            className="bg-gradient-warm text-bg-primary font-bold text-xl py-12 px-8 rounded-2xl
-                     shadow-glow-orange hover:scale-105 transition-transform"
           >
-            <div className="text-5xl mb-4">WIFI</div>
-            <div className="text-2xl mb-2">Online Multiplayer</div>
-            <div className="text-sm opacity-80 mt-4 text-left">
-              <div className="mb-2">Perfect for:</div>
-              <ul className="list-disc list-inside space-y-1">
-                <li>Remote team games</li>
-                <li>Players on their devices</li>
-                <li>Join with session code</li>
-                <li>Play from anywhere</li>
-              </ul>
+            <div className="text-center">
+              <div className="text-6xl mb-6 text-orange-primary">NETWORK</div>
+              <h2 className="text-3xl font-bold text-orange-primary mb-4">Online Multiplayer</h2>
+              <p className="text-text-secondary mb-6">
+                Perfect for remote teams and distributed gameplay
+              </p>
+              <div className="text-left space-y-2 text-text-muted">
+                <div className="flex items-start gap-2">
+                  <span className="text-orange-primary">CHECK</span>
+                  <span>Players on their devices</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-orange-primary">CHECK</span>
+                  <span>Join with session code</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-orange-primary">CHECK</span>
+                  <span>Play from anywhere</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-orange-primary">CHECK</span>
+                  <span>Real-time sync</span>
+                </div>
+              </div>
             </div>
-          </button>
+          </Card>
         </div>
 
         {/* Features */}
-        <div className="grid md:grid-cols-3 gap-8 text-text-muted text-center">
-          <div>
-            <div className="text-4xl mb-2"></div>
-            <div className="font-semibold text-text-secondary">Real-Time</div>
+        <div className="grid md:grid-cols-3 gap-8 text-center animate-fade-in">
+          <div className="text-text-muted">
+            <div className="text-5xl mb-3 text-cyan-primary"></div>
+            <div className="font-semibold text-text-secondary mb-2">Real-Time</div>
             <div className="text-sm">Live gameplay updates</div>
           </div>
-          <div>
-            <div className="text-4xl mb-2"></div>
-            <div className="font-semibold text-text-secondary">Voice Control</div>
+          <div className="text-text-muted">
+            <div className="text-5xl mb-3 text-cyan-primary"></div>
+            <div className="font-semibold text-text-secondary mb-2">Voice Control</div>
             <div className="text-sm">Hands-free timer control</div>
           </div>
-          <div>
-            <div className="text-4xl mb-2"></div>
-            <div className="font-semibold text-text-secondary">Fast Money</div>
+          <div className="text-text-muted">
+            <div className="text-5xl mb-3 text-cyan-primary"></div>
+            <div className="font-semibold text-text-secondary mb-2">Fast Money</div>
             <div className="text-sm">Bonus round included</div>
           </div>
         </div>

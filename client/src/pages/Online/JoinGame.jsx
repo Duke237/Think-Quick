@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import socketService from '../services/socket';
-import { ROUTES } from '../utils/constants';
-import { isValidSessionId } from '../utils/helpers';
+import socketService from '../../services/socket';
+import { Button, Card, Input } from '../../components';
+import { isValidSessionId } from '../../utils/helpers';
 
 const JoinGame = () => {
   const navigate = useNavigate();
@@ -18,8 +18,13 @@ const JoinGame = () => {
       return;
     }
 
-    setLoading(true);
+    // Basic format validation
+    if (!sessionId.includes('game_')) {
+      setError('Invalid session ID format');
+      return;
+    }
 
+    setLoading(true);
     socketService.connect();
 
     socketService.joinGame(sessionId, (response) => {
@@ -28,46 +33,74 @@ const JoinGame = () => {
       if (response.success) {
         localStorage.setItem('sessionId', sessionId);
         localStorage.setItem('isHost', 'false');
+        localStorage.setItem('isLiveMode', 'false');
         
-        // Navigate to player registration
-        navigate(`${ROUTES.PLAYER_REGISTER}?session=${sessionId}`);
+        navigate(`/online/player/register?session=${sessionId}`);
       } else {
-        setError(response.error || 'Failed to join game');
+        setError(response.error || 'Failed to join game. Please check the session ID.');
       }
     });
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleJoinGame();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-bg-primary flex items-center justify-center p-8">
-      <div className="max-w-md w-full bg-bg-secondary rounded-2xl shadow-deep p-8">
-        <h1 className="text-4xl font-bold text-cyan-primary text-center mb-8">
-          Join Game
-        </h1>
+      <div className="max-w-md w-full animate-fade-in">
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold text-orange-primary mb-4">
+            Join Game
+          </h1>
+          <p className="text-text-secondary text-lg">
+            Enter the session code provided by the host
+          </p>
+        </div>
 
-        <div className="space-y-6">
-          <div>
-            <label className="block text-text-secondary mb-2">Session ID</label>
-            <input
+        <Card padding="large">
+          <div className="space-y-6">
+            <Input
+              label="Session ID"
               type="text"
               value={sessionId}
               onChange={(e) => setSessionId(e.target.value)}
+              onKeyPress={handleKeyPress}
               placeholder="game_1234567890_abc123"
-              className="w-full bg-bg-tertiary text-text-primary px-4 py-3 rounded-xl
-                       font-mono text-sm"
+              error={error}
+              helperText={!error ? "Get this code from your game host" : undefined}
+              fullWidth
+              className="font-mono text-sm"
             />
-            {error && (
-              <p className="text-red-400 text-sm mt-2">{error}</p>
-            )}
-          </div>
 
-          <button
-            onClick={handleJoinGame}
-            disabled={loading}
-            className="w-full bg-gradient-cyan text-bg-primary font-bold py-4 rounded-xl
-                     hover:shadow-glow-cyan transition-all disabled:opacity-50"
+            <div className="bg-bg-tertiary p-4 rounded-xl">
+              <p className="text-text-muted text-sm mb-2">Session ID Format:</p>
+              <code className="text-cyan-primary text-xs">game_[timestamp]_[code]</code>
+            </div>
+          </div>
+        </Card>
+
+        <div className="flex gap-4 mt-8">
+          <Button
+            variant="ghost"
+            size="lg"
+            fullWidth
+            onClick={() => navigate('/online/mode-select')}
           >
-            {loading ? 'Joining...' : 'Join Game'}
-          </button>
+            Back
+          </Button>
+          <Button
+            variant="secondary"
+            size="lg"
+            fullWidth
+            loading={loading}
+            onClick={handleJoinGame}
+            disabled={!sessionId.trim()}
+          >
+            Join Game
+          </Button>
         </div>
       </div>
     </div>

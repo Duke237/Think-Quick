@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import socketService from '../services/socket';
-import { ROUTES, DEFAULT_SETTINGS } from '../utils/constants';
-import { generateId } from '../utils/helpers';
+import socketService from '../../services/socket';
+import { DEFAULT_SETTINGS } from '../../utils/constants';
+import { Button, Card, Input } from '../../components';
 
 const HostSetup = () => {
   const navigate = useNavigate();
@@ -11,7 +11,6 @@ const HostSetup = () => {
 
   const handleCreateGame = () => {
     setLoading(true);
-    
     socketService.connect();
     
     socketService.createGame(settings, (response) => {
@@ -21,9 +20,9 @@ const HostSetup = () => {
         const sessionId = response.sessionId;
         localStorage.setItem('sessionId', sessionId);
         localStorage.setItem('isHost', 'true');
+        localStorage.setItem('isLiveMode', 'false');
         
-        // Navigate to lobby
-        navigate(`${ROUTES.LOBBY}?session=${sessionId}`);
+        navigate(`/online/lobby?session=${sessionId}`);
       } else {
         alert('Failed to create game: ' + response.error);
       }
@@ -32,45 +31,84 @@ const HostSetup = () => {
 
   return (
     <div className="min-h-screen bg-bg-primary flex items-center justify-center p-8">
-      <div className="max-w-2xl w-full bg-bg-secondary rounded-2xl shadow-deep p-8">
-        <h1 className="text-4xl font-bold text-cyan-primary text-center mb-8">
-          Host Setup
-        </h1>
+      <div className="max-w-2xl w-full animate-fade-in">
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold text-cyan-primary mb-4">
+            Host Setup
+          </h1>
+          <p className="text-text-secondary text-lg">
+            Configure your online game settings
+          </p>
+        </div>
 
-        <div className="space-y-6 mb-8">
-          <div>
-            <label className="block text-text-secondary mb-2">Max Strikes</label>
-            <input
+        <Card title="Game Settings" padding="large" className="mb-8">
+          <div className="space-y-6">
+            <Input
+              label="Max Strikes"
               type="number"
               min="1"
               max="5"
               value={settings.MAX_STRIKES}
               onChange={(e) => setSettings({ ...settings, MAX_STRIKES: parseInt(e.target.value) })}
-              className="w-full bg-bg-tertiary text-text-primary px-4 py-3 rounded-xl"
+              helperText="Number of wrong answers allowed per round"
+              fullWidth
             />
-          </div>
 
-          <div>
-            <label className="block text-text-secondary mb-2">Timer (seconds)</label>
-            <input
+            <Input
+              label="Timer Duration (seconds)"
               type="number"
               min="10"
               max="60"
               value={settings.TIMER_SECONDS}
               onChange={(e) => setSettings({ ...settings, TIMER_SECONDS: parseInt(e.target.value) })}
-              className="w-full bg-bg-tertiary text-text-primary px-4 py-3 rounded-xl"
+              helperText="Time limit for answering each question"
+              fullWidth
+            />
+
+            <Input
+              label="Fast Money Target"
+              type="number"
+              min="50"
+              max="200"
+              value={settings.FAST_MONEY_TARGET}
+              onChange={(e) => setSettings({ ...settings, FAST_MONEY_TARGET: parseInt(e.target.value) })}
+              helperText="Points needed to win the bonus in Fast Money round"
+              fullWidth
+            />
+
+            <Input
+              label="Fast Money Bonus"
+              type="number"
+              min="100"
+              max="1000"
+              step="100"
+              value={settings.FAST_MONEY_BONUS}
+              onChange={(e) => setSettings({ ...settings, FAST_MONEY_BONUS: parseInt(e.target.value) })}
+              helperText="Bonus points awarded for reaching the Fast Money target"
+              fullWidth
             />
           </div>
-        </div>
+        </Card>
 
-        <button
-          onClick={handleCreateGame}
-          disabled={loading}
-          className="w-full bg-gradient-cyan text-bg-primary font-bold py-4 rounded-xl
-                   hover:shadow-glow-cyan transition-all disabled:opacity-50"
-        >
-          {loading ? 'Creating Game...' : 'Create Game'}
-        </button>
+        <div className="flex gap-4">
+          <Button
+            variant="ghost"
+            size="lg"
+            fullWidth
+            onClick={() => navigate('/online/mode-select')}
+          >
+            Back
+          </Button>
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            loading={loading}
+            onClick={handleCreateGame}
+          >
+            Create Game
+          </Button>
+        </div>
       </div>
     </div>
   );

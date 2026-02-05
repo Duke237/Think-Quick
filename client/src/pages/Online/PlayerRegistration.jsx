@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import socketService from '../services/socket';
+import socketService from '../../services/socket';
+import { Button, Card, Input } from '../../components';
 
 const PlayerRegistration = () => {
   const navigate = useNavigate();
@@ -43,7 +44,7 @@ const PlayerRegistration = () => {
         localStorage.setItem('playerId', response.player.id);
         localStorage.setItem('playerName', playerName);
         localStorage.setItem('playerTeam', selectedTeam);
-        navigate(`/lobby?session=${sessionId}`);
+        navigate(`/online/lobby?session=${sessionId}`);
       } else {
         setError(response.error || 'Failed to register');
       }
@@ -52,65 +53,73 @@ const PlayerRegistration = () => {
 
   return (
     <div className="min-h-screen bg-bg-primary flex items-center justify-center p-8">
-      <div className="max-w-md w-full bg-bg-secondary rounded-2xl shadow-deep p-8">
-        <h1 className="text-4xl font-bold text-cyan-primary text-center mb-8">
-          Player Registration
-        </h1>
+      <div className="max-w-md w-full animate-fade-in">
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold text-cyan-primary mb-4">
+            Player Registration
+          </h1>
+          <p className="text-text-secondary text-lg">
+            Join your team and get ready to play
+          </p>
+        </div>
 
         {error && (
-          <div className="bg-red-500/20 border border-red-500 text-red-300 px-4 py-3 rounded-xl mb-6">
+          <div className="bg-red-500/20 border border-red-500 text-red-300 px-4 py-3 rounded-xl mb-6 animate-scale-in">
             {error}
           </div>
         )}
 
-        <div className="space-y-6">
-          <div>
-            <label className="block text-text-secondary mb-2">Your Name</label>
-            <input
+        <Card padding="large" className="mb-6">
+          <div className="space-y-6">
+            <Input
+              label="Your Name"
               type="text"
               value={playerName}
               onChange={(e) => setPlayerName(e.target.value)}
               placeholder="Enter your name"
-              className="w-full bg-bg-tertiary text-text-primary px-4 py-3 rounded-xl
-                       focus:outline-none focus:ring-2 focus:ring-cyan-primary"
+              fullWidth
             />
-          </div>
 
-          <div>
-            <label className="block text-text-secondary mb-2">Select Team</label>
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                onClick={() => setSelectedTeam('A')}
-                className={`py-4 rounded-xl font-bold transition-all ${
-                  selectedTeam === 'A'
-                    ? 'bg-gradient-cyan text-bg-primary shadow-glow-cyan'
-                    : 'bg-bg-tertiary text-text-muted hover:text-cyan-primary'
-                }`}
-              >
-                Team A
-              </button>
-              <button
-                onClick={() => setSelectedTeam('B')}
-                className={`py-4 rounded-xl font-bold transition-all ${
-                  selectedTeam === 'B'
-                    ? 'bg-gradient-warm text-bg-primary shadow-glow-orange'
-                    : 'bg-bg-tertiary text-text-muted hover:text-orange-primary'
-                }`}
-              >
-                Team B
-              </button>
+            <div>
+              <label className="block text-text-secondary mb-3 font-medium">
+                Select Team
+              </label>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={() => setSelectedTeam('A')}
+                  className={`py-4 rounded-xl font-bold transition-all ${
+                    selectedTeam === 'A'
+                      ? 'bg-gradient-cyan text-bg-primary shadow-glow-cyan scale-105'
+                      : 'bg-bg-tertiary text-text-muted hover:text-cyan-primary hover:bg-bg-tertiary/80'
+                  }`}
+                >
+                  Team A
+                </button>
+                <button
+                  onClick={() => setSelectedTeam('B')}
+                  className={`py-4 rounded-xl font-bold transition-all ${
+                    selectedTeam === 'B'
+                      ? 'bg-gradient-warm text-bg-primary shadow-glow-orange scale-105'
+                      : 'bg-bg-tertiary text-text-muted hover:text-orange-primary hover:bg-bg-tertiary/80'
+                  }`}
+                >
+                  Team B
+                </button>
+              </div>
             </div>
           </div>
+        </Card>
 
-          <button
-            onClick={handleRegister}
-            disabled={loading || !playerName.trim()}
-            className="w-full bg-gradient-cyan text-bg-primary font-bold py-4 rounded-xl
-                     hover:shadow-glow-cyan transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Registering...' : 'Join Game'}
-          </button>
-        </div>
+        <Button
+          variant={selectedTeam === 'A' ? 'primary' : 'secondary'}
+          size="lg"
+          fullWidth
+          loading={loading}
+          disabled={!playerName.trim()}
+          onClick={handleRegister}
+        >
+          Join Game
+        </Button>
 
         <div className="mt-6 text-center">
           <p className="text-text-muted text-sm">

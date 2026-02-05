@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import socketService from '../../services/socket';
 import { DEFAULT_SETTINGS } from '../../utils/constants';
+import { Button, Card, Input } from '../../components';
 
 const LiveSetup = () => {
   const navigate = useNavigate();
@@ -39,7 +40,6 @@ const LiveSetup = () => {
   };
 
   const handleStartGame = () => {
-    // Filter out empty names
     const teamA = teamAPlayers.filter(name => name.trim());
     const teamB = teamBPlayers.filter(name => name.trim());
 
@@ -51,41 +51,29 @@ const LiveSetup = () => {
     setLoading(true);
     socketService.connect();
 
-    // Create game with live mode flag
     socketService.createGame({ ...settings, isLiveMode: true }, (response) => {
       if (response.success) {
         const sessionId = response.sessionId;
         
-        // Register all players automatically
         let registeredCount = 0;
         const totalPlayers = teamA.length + teamB.length;
 
-        // Register Team A players
+        const checkComplete = () => {
+          registeredCount++;
+          if (registeredCount === totalPlayers) {
+            localStorage.setItem('sessionId', sessionId);
+            localStorage.setItem('isHost', 'true');
+            localStorage.setItem('isLiveMode', 'true');
+            navigate(`/live/game?session=${sessionId}`);
+          }
+        };
+
         teamA.forEach((name) => {
-          socketService.registerPlayer(sessionId, name, 'A', (res) => {
-            registeredCount++;
-            if (registeredCount === totalPlayers) {
-              // All players registered, start game
-              localStorage.setItem('sessionId', sessionId);
-              localStorage.setItem('isHost', 'true');
-              localStorage.setItem('isLiveMode', 'true');
-              navigate(`/live/game?session=${sessionId}`);
-            }
-          });
+          socketService.registerPlayer(sessionId, name, 'A', checkComplete);
         });
 
-        // Register Team B players
         teamB.forEach((name) => {
-          socketService.registerPlayer(sessionId, name, 'B', (res) => {
-            registeredCount++;
-            if (registeredCount === totalPlayers) {
-              // All players registered, start game
-              localStorage.setItem('sessionId', sessionId);
-              localStorage.setItem('isHost', 'true');
-              localStorage.setItem('isLiveMode', 'true');
-              navigate(`/live/game?session=${sessionId}`);
-            }
-          });
+          socketService.registerPlayer(sessionId, name, 'B', checkComplete);
         });
       } else {
         setLoading(false);
@@ -97,124 +85,145 @@ const LiveSetup = () => {
   return (
     <div className="min-h-screen bg-bg-primary p-8">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-5xl font-bold text-cyan-primary text-center mb-12">
-          Live Game Setup
-        </h1>
+        {/* Header */}
+        <div className="text-center mb-12 animate-fade-in">
+          <h1 className="text-5xl font-bold text-cyan-primary mb-4">
+            Live Game Setup
+          </h1>
+          <p className="text-text-secondary text-lg">
+            Configure your game and add players
+          </p>
+        </div>
 
         {/* Settings */}
-        <div className="bg-bg-secondary rounded-2xl shadow-deep p-8 mb-8">
-          <h2 className="text-2xl font-bold text-text-primary mb-6">Game Settings</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-text-secondary mb-2">Max Strikes</label>
-              <input
-                type="number"
-                min="1"
-                max="5"
-                value={settings.MAX_STRIKES}
-                onChange={(e) => setSettings({ ...settings, MAX_STRIKES: parseInt(e.target.value) })}
-                className="w-full bg-bg-tertiary text-text-primary px-4 py-3 rounded-xl"
-              />
-            </div>
-            <div>
-              <label className="block text-text-secondary mb-2">Timer (seconds)</label>
-              <input
-                type="number"
-                min="10"
-                max="60"
-                value={settings.TIMER_SECONDS}
-                onChange={(e) => setSettings({ ...settings, TIMER_SECONDS: parseInt(e.target.value) })}
-                className="w-full bg-bg-tertiary text-text-primary px-4 py-3 rounded-xl"
-              />
-            </div>
+        <Card title="Game Settings" className="mb-8 animate-scale-in">
+          <div className="grid md:grid-cols-3 gap-6">
+            <Input
+              label="Max Strikes"
+              type="number"
+              min="1"
+              max="5"
+              value={settings.MAX_STRIKES}
+              onChange={(e) => setSettings({ ...settings, MAX_STRIKES: parseInt(e.target.value) })}
+              fullWidth
+            />
+            <Input
+              label="Timer (seconds)"
+              type="number"
+              min="10"
+              max="60"
+              value={settings.TIMER_SECONDS}
+              onChange={(e) => setSettings({ ...settings, TIMER_SECONDS: parseInt(e.target.value) })}
+              fullWidth
+            />
+            <Input
+              label="Fast Money Target"
+              type="number"
+              min="50"
+              max="200"
+              value={settings.FAST_MONEY_TARGET}
+              onChange={(e) => setSettings({ ...settings, FAST_MONEY_TARGET: parseInt(e.target.value) })}
+              fullWidth
+            />
           </div>
-        </div>
+        </Card>
 
         {/* Team Setup */}
         <div className="grid md:grid-cols-2 gap-8 mb-8">
           {/* Team A */}
-          <div className="bg-bg-secondary rounded-2xl shadow-deep p-8 border-2 border-cyan-primary">
-            <h2 className="text-2xl font-bold text-cyan-primary mb-6">Team A</h2>
+          <Card variant="cyan" padding="large" className="animate-scale-in">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-cyan-primary">Team A</h2>
+              <span className="text-text-muted">{teamAPlayers.filter(n => n.trim()).length} players</span>
+            </div>
             <div className="space-y-4">
               {teamAPlayers.map((name, index) => (
                 <div key={index} className="flex gap-2">
-                  <input
-                    type="text"
+                  <Input
                     value={name}
                     onChange={(e) => updatePlayerName('A', index, e.target.value)}
                     placeholder={`Player ${index + 1} name`}
-                    className="flex-1 bg-bg-tertiary text-text-primary px-4 py-3 rounded-xl"
+                    fullWidth
                   />
                   {teamAPlayers.length > 1 && (
-                    <button
+                    <Button
+                      variant="danger"
+                      size="md"
                       onClick={() => removePlayerSlot('A', index)}
-                      className="px-4 py-3 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30"
                     >
                       Remove
-                    </button>
+                    </Button>
                   )}
                 </div>
               ))}
-              <button
+              <Button
+                variant="outline"
+                size="md"
+                fullWidth
                 onClick={() => addPlayerSlot('A')}
-                className="w-full py-3 border-2 border-cyan-primary text-cyan-primary rounded-xl
-                         hover:bg-cyan-primary hover:text-bg-primary transition-all"
               >
-                Add Player
-              </button>
+                + Add Player
+              </Button>
             </div>
-          </div>
+          </Card>
 
           {/* Team B */}
-          <div className="bg-bg-secondary rounded-2xl shadow-deep p-8 border-2 border-orange-primary">
-            <h2 className="text-2xl font-bold text-orange-primary mb-6">Team B</h2>
+          <Card variant="orange" padding="large" className="animate-scale-in">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-orange-primary">Team B</h2>
+              <span className="text-text-muted">{teamBPlayers.filter(n => n.trim()).length} players</span>
+            </div>
             <div className="space-y-4">
               {teamBPlayers.map((name, index) => (
                 <div key={index} className="flex gap-2">
-                  <input
-                    type="text"
+                  <Input
                     value={name}
                     onChange={(e) => updatePlayerName('B', index, e.target.value)}
                     placeholder={`Player ${index + 1} name`}
-                    className="flex-1 bg-bg-tertiary text-text-primary px-4 py-3 rounded-xl"
+                    fullWidth
                   />
                   {teamBPlayers.length > 1 && (
-                    <button
+                    <Button
+                      variant="danger"
+                      size="md"
                       onClick={() => removePlayerSlot('B', index)}
-                      className="px-4 py-3 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30"
                     >
                       Remove
-                    </button>
+                    </Button>
                   )}
                 </div>
               ))}
-              <button
+              <Button
+                variant="outlineOrange"
+                size="md"
+                fullWidth
                 onClick={() => addPlayerSlot('B')}
-                className="w-full py-3 border-2 border-orange-primary text-orange-primary rounded-xl
-                         hover:bg-orange-primary hover:text-bg-primary transition-all"
               >
-                Add Player
-              </button>
+                + Add Player
+              </Button>
             </div>
-          </div>
+          </Card>
         </div>
 
-        {/* Start Button */}
-        <div className="flex gap-4">
-          <button
+        {/* Action Buttons */}
+        <div className="flex gap-4 animate-fade-in">
+          <Button
+            variant="ghost"
+            size="lg"
+            fullWidth
             onClick={() => navigate('/')}
-            className="flex-1 py-4 bg-bg-secondary text-text-muted rounded-xl hover:text-text-primary"
           >
-            Back
-          </button>
-          <button
+            Back to Home
+          </Button>
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            loading={loading}
             onClick={handleStartGame}
-            disabled={loading}
-            className="flex-1 py-4 bg-gradient-cyan text-bg-primary font-bold rounded-xl
-                     shadow-glow-cyan hover:scale-105 transition-transform disabled:opacity-50"
           >
-            {loading ? 'Starting Game...' : 'Start Live Game'}
-          </button>
+            Start Live Game
+          </Button>
         </div>
       </div>
     </div>

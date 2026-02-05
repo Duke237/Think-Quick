@@ -5,10 +5,10 @@ import LandingPage from "./pages/LandingPage";
 
 // Online Mode
 import OnlineModeSelect from "./pages/Online/OnlineModeSelect";
-import HostSetup from "./pages/HostSetup";
-import JoinGame from "./pages/JoinGame";
-import PlayerRegistration from "./pages/PlayerRegistration";
-import Lobby from "./pages/Lobby";
+import HostSetup from "./pages/Online/HostSetup";
+import JoinGame from "./pages/Online/JoinGame";
+import PlayerRegistration from "./pages/Online/PlayerRegistration";
+import Lobby from "./pages/Online/Lobby";
 
 // Live Mode
 import LiveSetup from "./pages/Live/LiveSetup";
@@ -32,7 +32,6 @@ function App() {
 
         {/* Live Mode Routes */}
         <Route path="/live/setup" element={<LiveSetup />} />
-        {/* Live game board will be added in Phase 8 */}
 
         {/* Utility */}
         <Route path="/clock" element={<ClockPage />} />
