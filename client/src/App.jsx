@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import SoundManager from './components/common/SoundManager';
 
 // Landing
 import LandingPage from "./pages/LandingPage";
@@ -21,6 +23,7 @@ import ClockPage from "./pages/ClockPage";
 
 function App() {
   return (
+    <SoundManager autoLoad={true}>
     <Router>
       <Routes>
         {/* Landing */}
@@ -43,6 +46,7 @@ function App() {
         <Route path="/clock" element={<ClockPage />} />
       </Routes>
     </Router>
+    </SoundManager>
   );
 }
 

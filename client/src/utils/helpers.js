@@ -1,3 +1,18 @@
+import audioService from '../services/audio';
+
+/**
+ * Play sound effect using audio service
+ */
+export const playSound = (soundName, volume = 1.0) => {
+  audioService.play(soundName, volume);
+};
+
+/**
+ * Play sound from path
+ */
+export const playSoundPath = (path, volume = 1.0) => {
+  audioService.playPath(path, volume);
+};
 /**
  * Format time in MM:SS format
  */
@@ -73,21 +88,6 @@ export const shuffleArray = (array) => {
  */
 export const isDev = () => {
   return import.meta.env.MODE === 'development';
-};
-
-/**
- * Play sound effect
- */
-export const playSound = (soundPath, volume = 1.0) => {
-  try {
-    const audio = new Audio(soundPath);
-    audio.volume = clamp(volume, 0, 1);
-    audio.play().catch(err => {
-      console.warn('Failed to play sound:', err);
-    });
-  } catch (error) {
-    console.warn('Sound playback error:', error);
-  }
 };
 
 /**

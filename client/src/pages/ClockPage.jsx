@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { playSound } from '../utils/helpers';
+import audioService from '../services/audio';
 
 const ClockPage = () => {
   const navigate = useNavigate();
@@ -103,37 +104,7 @@ const ClockPage = () => {
       if (interval) clearInterval(interval);
     };
   }, [isActive, timeRemaining]);
-
-  const handleTimerComplete = useCallback(() => {
-    setIsActive(false);
-    stopListening();
-    
-    // Play timer end sound
-    playSound('/sounds/timer-end.mp3', 0.7);
-    
-    // Auto-redirect after 1 second
-    setTimeout(() => {
-      if (returnPath) {
-        navigate(returnPath, { 
-          state: { 
-            sessionId, 
-            teamName, 
-            timerCompleted: true 
-          } 
-        });
-      } else {
-        navigate(-1);
-      }
-    }, 1000);
-  }, [navigate, returnPath, sessionId, teamName]);
-
-  const handleStart = () => {
-    if (!isActive && timeRemaining > 0) {
-      setIsActive(true);
-      playSound('/sounds/timer-start.mp3', 0.5);
-    }
-  };
-
+  
   const handleStop = () => {
     setIsActive(false);
   };
@@ -142,6 +113,36 @@ const ClockPage = () => {
     setIsActive(false);
     setTimeRemaining(duration);
   };
+
+  const handleTimerComplete = useCallback(() => {
+  setIsActive(false);
+  stopListening();
+  
+  // Play timer end sound
+  audioService.play('timerEnd', 0.8);
+  
+  // Auto-redirect after 1 second
+  setTimeout(() => {
+    if (returnPath) {
+      navigate(returnPath, { 
+        state: { 
+          sessionId, 
+          teamName, 
+          timerCompleted: true 
+        } 
+      });
+    } else {
+      navigate(-1);
+    }
+  }, 1000);
+}, [navigate, returnPath, sessionId, teamName]);
+
+const handleStart = () => {
+  if (!isActive && timeRemaining > 0) {
+    setIsActive(true);
+    audioService.play('timerStart', 0.5);
+  }
+};
 
   // Color based on time remaining
   const getColor = () => {
