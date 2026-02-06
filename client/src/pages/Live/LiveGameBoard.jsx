@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import socketService from '../../services/socket';
 import { SOCKET_EVENTS } from '../../utils/constants';
 import { 
@@ -11,13 +11,13 @@ import {
   Button,
   QuestionDisplay,
   AnswerBoard,
-  HostControlPanel
+  Card
 } from '../../components';
 
 const LiveGameBoard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [sessionId, setSessionId] = useState(null);
-  const [gameState, setGameState] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showEndModal, setShowEndModal] = useState(false);
 
@@ -30,8 +30,8 @@ const LiveGameBoard = () => {
   const [activeTeam, setActiveTeam] = useState('A');
   const [roundNumber, setRoundNumber] = useState(1);
   const [multiplier, setMultiplier] = useState(1);
-  const [timerActive, setTimerActive] = useState(false);
-  const [timerRemaining, setTimerRemaining] = useState(20);
+  const [teamAnswers, setTeamAnswers] = useState({ A: null, B: null });
+  const [currentPhase, setCurrentPhase] = useState('question'); // question, teamA, teamB, reveal
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -46,41 +46,42 @@ const LiveGameBoard = () => {
     socketService.connect();
     
     // Load first question
-    socketService.loadQuestion(sid, null, 1, (response) => {
+    loadNewQuestion(sid);
+
+    // Socket listeners
+    socketService.on(SOCKET_EVENTS.ANSWER_REVEALED, handleAnswerRevealed);
+    socketService.on(SOCKET_EVENTS.SCORE_UPDATE, handleScoreUpdate);
+
+    return () => {
+      socketService.off(SOCKET_EVENTS.ANSWER_REVEALED);
+      socketService.off(SOCKET_EVENTS.SCORE_UPDATE);
+    };
+  }, [navigate]);
+
+  // Check if returning from timer or answer input
+  useEffect(() => {
+    if (location.state?.fromTimer && location.state?.teamAnswer) {
+      handleTeamAnswerReceived(location.state.team, location.state.teamAnswer);
+    }
+  }, [location.state]);
+
+  const loadNewQuestion = (sid) => {
+    socketService.loadQuestion(sid, null, multiplier, (response) => {
       if (response.success) {
         setCurrentQuestion(response.question);
         setRoundNumber(response.round.roundNumber);
         setMultiplier(response.round.multiplier);
+        setRevealedAnswers([]);
+        setTeamAnswers({ A: null, B: null });
+        setStrikes(0);
+        setCurrentPhase('question');
         setLoading(false);
       }
     });
-
-    // Socket listeners
-    socketService.on(SOCKET_EVENTS.ANSWER_REVEALED, handleAnswerRevealed);
-    socketService.on(SOCKET_EVENTS.ANSWER_WRONG, handleWrongAnswer);
-    socketService.on(SOCKET_EVENTS.SCORE_UPDATE, handleScoreUpdate);
-    socketService.on(SOCKET_EVENTS.STRIKE_ADDED, handleStrikeAdded);
-    socketService.on(SOCKET_EVENTS.TEAM_SWITCHED, handleTeamSwitched);
-    socketService.on(SOCKET_EVENTS.TIMER_TICK, handleTimerTick);
-    socketService.on(SOCKET_EVENTS.TIMER_UPDATE, handleTimerUpdate);
-
-    return () => {
-      socketService.off(SOCKET_EVENTS.ANSWER_REVEALED);
-      socketService.off(SOCKET_EVENTS.ANSWER_WRONG);
-      socketService.off(SOCKET_EVENTS.SCORE_UPDATE);
-      socketService.off(SOCKET_EVENTS.STRIKE_ADDED);
-      socketService.off(SOCKET_EVENTS.TEAM_SWITCHED);
-      socketService.off(SOCKET_EVENTS.TIMER_TICK);
-      socketService.off(SOCKET_EVENTS.TIMER_UPDATE);
-    };
-  }, [navigate]);
+  };
 
   const handleAnswerRevealed = (data) => {
     setRevealedAnswers(prev => [...prev, data.answer]);
-  };
-
-  const handleWrongAnswer = (data) => {
-    console.log('Wrong answer:', data.submittedAnswer);
   };
 
   const handleScoreUpdate = (data) => {
@@ -88,79 +89,65 @@ const LiveGameBoard = () => {
     setTeamBScore(data.teamB);
   };
 
-  const handleStrikeAdded = (data) => {
-    setStrikes(data.strikes);
-  };
-
-  const handleTeamSwitched = (data) => {
-    setActiveTeam(data.activeTeam);
-  };
-
-  const handleTimerTick = (data) => {
-    setTimerRemaining(data.timeRemaining);
-  };
-
-  const handleTimerUpdate = (data) => {
-    setTimerRemaining(data.timeRemaining);
-    setTimerActive(data.active);
-  };
-
-  const handleSubmitAnswer = (answer) => {
-    socketService.submitAnswer(sessionId, answer, (response) => {
-      if (response.correct) {
-        console.log('Correct answer!');
-      } else {
-        console.log('Wrong answer!');
+  const handleStartTeamA = () => {
+    setCurrentPhase('teamA');
+    navigate('/clock', {
+      state: {
+        sessionId,
+        duration: 20,
+        teamName: 'Team A',
+        returnPath: '/live/team-input',
+        team: 'A'
       }
     });
   };
 
-  const handleAddStrike = () => {
-    setStrikes(prev => Math.min(prev + 1, 3));
-  };
-
-  const handleSwitchTeam = () => {
-    socketService.switchTeam(sessionId, (response) => {
-      if (response.success) {
-        setActiveTeam(response.activeTeam);
+  const handleStartTeamB = () => {
+    setCurrentPhase('teamB');
+    navigate('/clock', {
+      state: {
+        sessionId,
+        duration: 20,
+        teamName: 'Team B',
+        returnPath: '/live/team-input',
+        team: 'B'
       }
     });
+  };
+
+  const handleTeamAnswerReceived = (team, answer) => {
+    setTeamAnswers(prev => ({ ...prev, [team]: answer }));
+    
+    // Check answer against database
+    const matched = currentQuestion.answers.find(a => 
+      a.text.toLowerCase().trim() === answer.toLowerCase().trim()
+    );
+
+    if (matched) {
+      // Reveal answer and award points
+      socketService.submitAnswer(sessionId, answer, (response) => {
+        if (response.correct) {
+          const points = matched.frequency * multiplier;
+          if (team === 'A') {
+            setTeamAScore(prev => prev + points);
+          } else {
+            setTeamBScore(prev => prev + points);
+          }
+        }
+      });
+    } else {
+      // Wrong answer - add strike
+      setStrikes(prev => prev + 1);
+    }
+
+    // If both teams answered, move to reveal phase
+    if ((team === 'A' && teamAnswers.B) || (team === 'B' && teamAnswers.A)) {
+      setCurrentPhase('reveal');
+    }
   };
 
   const handleNextQuestion = () => {
-    setRevealedAnswers([]);
-    setStrikes(0);
-    
-    const nextRound = roundNumber + 1;
-    const nextMultiplier = nextRound <= 3 ? nextRound : 3;
-    
-    socketService.loadQuestion(sessionId, null, nextMultiplier, (response) => {
-      if (response.success) {
-        setCurrentQuestion(response.question);
-        setRoundNumber(response.round.roundNumber);
-        setMultiplier(response.round.multiplier);
-      }
-    });
-  };
-
-  const handleEndRound = () => {
-    socketService.endRound(sessionId, (response) => {
-      if (response.success) {
-        handleNextQuestion();
-      }
-    });
-  };
-
-  const handleStartTimer = () => {
-    socketService.startTimer(sessionId, 20);
-  };
-
-  const handleStopTimer = () => {
-    socketService.stopTimer(sessionId);
-  };
-
-  const handleResetTimer = () => {
-    socketService.resetTimer(sessionId, 20);
+    loadNewQuestion(sessionId);
   };
 
   const handleEndGame = () => {
@@ -175,9 +162,6 @@ const LiveGameBoard = () => {
     return <LoadingSpinner fullScreen text="Loading game..." />;
   }
 
-  const teamAPlayers = gameState?.players?.filter(p => p.team === 'A') || [];
-  const teamBPlayers = gameState?.players?.filter(p => p.team === 'B') || [];
-
   return (
     <div className="min-h-screen bg-bg-primary p-4">
       <div className="max-w-[1920px] mx-auto">
@@ -191,72 +175,98 @@ const LiveGameBoard = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-12 gap-6">
-          {/* Main Game Area */}
-          <div className="col-span-9 space-y-6">
-            {/* Question */}
-            <QuestionDisplay
-              question={currentQuestion?.text}
-              roundNumber={roundNumber}
-              multiplier={multiplier}
-              category={currentQuestion?.category}
-            />
+        {/* Question Display */}
+        <QuestionDisplay
+          question={currentQuestion?.text}
+          roundNumber={roundNumber}
+          multiplier={multiplier}
+          category={currentQuestion?.category}
+        />
 
-            {/* Timer */}
-            <div className="flex justify-center">
-              <Timer
-                initialTime={timerRemaining}
-                isActive={timerActive}
-                size="large"
-                variant="cyan"
-              />
+        <div className="grid grid-cols-2 gap-6 mt-8">
+          {/* Team A Section */}
+          <Card variant="cyan" padding="large">
+            <div className="text-center space-y-4">
+              <h3 className="text-2xl font-bold text-cyan-primary">Team A</h3>
+              <div className="text-5xl font-bold text-cyan-primary">
+                {teamAScore}
+              </div>
+              {currentPhase === 'question' && !teamAnswers.A && (
+                <Button
+                  variant="primary"
+                  size="lg"
+                  fullWidth
+                  onClick={handleStartTeamA}
+                >
+                  Start Team A Timer
+                </Button>
+              )}
+              {teamAnswers.A && (
+                <div className="bg-bg-tertiary p-4 rounded-xl">
+                  <div className="text-text-muted text-sm mb-2">Answer:</div>
+                  <div className="text-xl font-semibold text-text-primary">
+                    {teamAnswers.A}
+                  </div>
+                </div>
+              )}
             </div>
+          </Card>
 
-            {/* Answer Board */}
-            <AnswerBoard
-              answers={currentQuestion?.answers || []}
-              revealedAnswers={revealedAnswers}
-              totalPoints={100}
-            />
-
-            {/* Strikes */}
-            <div className="flex justify-center">
-              <StrikeIndicator
-                strikes={strikes}
-                maxStrikes={3}
-                size="large"
-              />
+          {/* Team B Section */}
+          <Card variant="orange" padding="large">
+            <div className="text-center space-y-4">
+              <h3 className="text-2xl font-bold text-orange-primary">Team B</h3>
+              <div className="text-5xl font-bold text-orange-primary">
+                {teamBScore}
+              </div>
+              {currentPhase === 'question' && teamAnswers.A && !teamAnswers.B && (
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  fullWidth
+                  onClick={handleStartTeamB}
+                >
+                  Start Team B Timer
+                </Button>
+              )}
+              {teamAnswers.B && (
+                <div className="bg-bg-tertiary p-4 rounded-xl">
+                  <div className="text-text-muted text-sm mb-2">Answer:</div>
+                  <div className="text-xl font-semibold text-text-primary">
+                    {teamAnswers.B}
+                  </div>
+                </div>
+              )}
             </div>
-
-            {/* Scores */}
-            <ScoreDisplay
-              teamAScore={teamAScore}
-              teamBScore={teamBScore}
-              teamAName="Team A"
-              teamBName="Team B"
-              size="large"
-              showDifference
-            />
-          </div>
-
-          {/* Host Control Panel */}
-          <div className="col-span-3">
-            <HostControlPanel
-              onSubmitAnswer={handleSubmitAnswer}
-              onAddStrike={handleAddStrike}
-              onSwitchTeam={handleSwitchTeam}
-              onNextQuestion={handleNextQuestion}
-              onEndRound={handleEndRound}
-              onStartTimer={handleStartTimer}
-              onStopTimer={handleStopTimer}
-              onResetTimer={handleResetTimer}
-              strikes={strikes}
-              maxStrikes={3}
-              activeTeam={activeTeam}
-              timerActive={timerActive}
-            />
-          </div>
+          </Card>
         </div>
+
+        {/* Answer Board */}
+        <div className="mt-8">
+          <AnswerBoard
+            answers={currentQuestion?.answers || []}
+            revealedAnswers={revealedAnswers}
+            totalPoints={100}
+          />
+        </div>
+
+        {/* Strikes */}
+        <div className="mt-8 flex justify-center">
+          <StrikeIndicator strikes={strikes} maxStrikes={3} size="large" />
+        </div>
+
+        {/* Next Question Button */}
+        {currentPhase === 'reveal' && (
+          <div className="mt-8 flex justify-center">
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={handleNextQuestion}
+            >
+              Next Question
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* End Game Modal */}

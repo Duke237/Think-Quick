@@ -13,6 +13,8 @@ import Lobby from "./pages/Online/Lobby";
 // Live Mode
 import LiveSetup from "./pages/Live/LiveSetup";
 import LiveGameBoard from "./pages/Live/LiveGameBoard";
+import TeamAnswerInput from "./pages/Live/TeamAnswerInput";
+import AnswerComparison from "./pages/Live/AnswerComparison";
 
 // Shared
 import ClockPage from "./pages/ClockPage";
@@ -34,6 +36,8 @@ function App() {
         {/* Live Mode Routes */}
         <Route path="/live/setup" element={<LiveSetup />} />
         <Route path="/live/game" element={<LiveGameBoard />} />
+        <Route path="/live/team-input" element={<TeamAnswerInput />} />
+        <Route path="/live/answer-comparison" element={<AnswerComparison />} />
 
         {/* Utility */}
         <Route path="/clock" element={<ClockPage />} />
