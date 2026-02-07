@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import socketService from '../../services/socket';
 import { SOCKET_EVENTS } from '../../utils/constants';
+import audioService from '../../services/audio';
 import { 
-  Timer, 
   ScoreDisplay, 
   StrikeIndicator,
   LoadingSpinner,
@@ -27,11 +27,10 @@ const LiveGameBoard = () => {
   const [teamAScore, setTeamAScore] = useState(0);
   const [teamBScore, setTeamBScore] = useState(0);
   const [strikes, setStrikes] = useState(0);
-  const [activeTeam, setActiveTeam] = useState('A');
   const [roundNumber, setRoundNumber] = useState(1);
   const [multiplier, setMultiplier] = useState(1);
   const [teamAnswers, setTeamAnswers] = useState({ A: null, B: null });
-  const [currentPhase, setCurrentPhase] = useState('question'); // question, teamA, teamB, reveal
+  const [answeredTeams, setAnsweredTeams] = useState({ A: false, B: false });
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -45,8 +44,10 @@ const LiveGameBoard = () => {
     setSessionId(sid);
     socketService.connect();
     
-    // Load first question
-    loadNewQuestion(sid);
+    // Only load question if we don't have one
+    if (!currentQuestion) {
+      loadNewQuestion(sid);
+    }
 
     // Socket listeners
     socketService.on(SOCKET_EVENTS.ANSWER_REVEALED, handleAnswerRevealed);
@@ -58,23 +59,41 @@ const LiveGameBoard = () => {
     };
   }, [navigate]);
 
-  // Check if returning from timer or answer input
+  // Check if returning from timer with answer
   useEffect(() => {
-    if (location.state?.fromTimer && location.state?.teamAnswer) {
-      handleTeamAnswerReceived(location.state.team, location.state.teamAnswer);
+    if (location.state?.fromTimer && location.state?.teamAnswer && location.state?.team) {
+      const { team, teamAnswer } = location.state;
+      console.log(`Received answer from Team ${team}:`, teamAnswer);
+      
+      // Save the answer
+      setTeamAnswers(prev => ({ ...prev, [team]: teamAnswer }));
+      setAnsweredTeams(prev => ({ ...prev, [team]: true }));
+      
+      // Process the answer if we have a current question
+      if (currentQuestion) {
+        handleTeamAnswerReceived(team, teamAnswer);
+      }
+      
+      // Clear the location state to prevent re-processing
+      window.history.replaceState({}, document.title);
     }
-  }, [location.state]);
+  }, [location.state, currentQuestion]);
 
   const loadNewQuestion = (sid) => {
+    setLoading(true);
     socketService.loadQuestion(sid, null, multiplier, (response) => {
       if (response.success) {
+        console.log('Question loaded:', response.question);
         setCurrentQuestion(response.question);
         setRoundNumber(response.round.roundNumber);
         setMultiplier(response.round.multiplier);
         setRevealedAnswers([]);
         setTeamAnswers({ A: null, B: null });
+        setAnsweredTeams({ A: false, B: false });
         setStrikes(0);
-        setCurrentPhase('question');
+        setLoading(false);
+      } else {
+        console.error('Failed to load question:', response.error);
         setLoading(false);
       }
     });
@@ -82,6 +101,7 @@ const LiveGameBoard = () => {
 
   const handleAnswerRevealed = (data) => {
     setRevealedAnswers(prev => [...prev, data.answer]);
+    audioService.play('reveal', 0.6);
   };
 
   const handleScoreUpdate = (data) => {
@@ -90,44 +110,66 @@ const LiveGameBoard = () => {
   };
 
   const handleStartTeamA = () => {
-    setCurrentPhase('teamA');
+    if (!currentQuestion) {
+      alert('No question loaded yet!');
+      return;
+    }
+
     navigate('/clock', {
       state: {
         sessionId,
         duration: 20,
         teamName: 'Team A',
         returnPath: '/live/team-input',
-        team: 'A'
+        team: 'A',
+        question: currentQuestion
       }
     });
   };
 
   const handleStartTeamB = () => {
-    setCurrentPhase('teamB');
+    if (!currentQuestion) {
+      alert('No question loaded yet!');
+      return;
+    }
+
     navigate('/clock', {
       state: {
         sessionId,
         duration: 20,
         teamName: 'Team B',
         returnPath: '/live/team-input',
-        team: 'B'
+        team: 'B',
+        question: currentQuestion
       }
     });
   };
 
   const handleTeamAnswerReceived = (team, answer) => {
-    setTeamAnswers(prev => ({ ...prev, [team]: answer }));
+    console.log(`Processing answer from Team ${team}:`, answer);
     
+    // Safety check
+    if (!currentQuestion || !currentQuestion.answers) {
+      console.error('No current question or answers available');
+      alert('Error: No question loaded. Returning to game board.');
+      return;
+    }
+
     // Check answer against database
     const matched = currentQuestion.answers.find(a => 
       a.text.toLowerCase().trim() === answer.toLowerCase().trim()
     );
 
     if (matched) {
-      // Reveal answer and award points
+      console.log('Answer matched:', matched);
+      const points = matched.frequency * multiplier;
+      
+      // Reveal answer and award points via socket
       socketService.submitAnswer(sessionId, answer, (response) => {
         if (response.correct) {
-          const points = matched.frequency * multiplier;
+          audioService.play('correct', 0.7);
+          
+          // Update local score
           if (team === 'A') {
             setTeamAScore(prev => prev + points);
           } else {
@@ -136,17 +178,25 @@ const LiveGameBoard = () => {
         }
       });
     } else {
-      // Wrong answer - add strike
-      setStrikes(prev => prev + 1);
-    }
-
-    // If both teams answered, move to reveal phase
-    if ((team === 'A' && teamAnswers.B) || (team === 'B' && teamAnswers.A)) {
-      setCurrentPhase('reveal');
+      console.log('Wrong answer');
+      audioService.play('wrong', 0.7);
+      setStrikes(prev => {
+        const newStrikes = prev + 1;
+        if (newStrikes >= 3) {
+          audioService.play('strike', 0.8);
+        }
+        return newStrikes;
+      });
     }
   };
 
   const handleNextQuestion = () => {
+    if (!sessionId) return;
+    
+    const nextRound = roundNumber + 1;
+    const nextMultiplier = nextRound <= 3 ? nextRound : 3;
+    setMultiplier(nextMultiplier);
+    
     loadNewQuestion(sessionId);
   };
 
@@ -162,6 +212,8 @@ const LiveGameBoard = () => {
     return <LoadingSpinner fullScreen text="Loading game..." />;
   }
 
+  const bothTeamsAnswered = answeredTeams.A && answeredTeams.B;
+
   return (
     <div className="min-h-screen bg-bg-primary p-4">
       <div className="max-w-[1920px] mx-auto">
@@ -176,12 +228,14 @@ const LiveGameBoard = () => {
         </div>
 
         {/* Question Display */}
-        <QuestionDisplay
-          question={currentQuestion?.text}
-          roundNumber={roundNumber}
-          multiplier={multiplier}
-          category={currentQuestion?.category}
-        />
+        {currentQuestion && (
+          <QuestionDisplay
+            question={currentQuestion.text}
+            roundNumber={roundNumber}
+            multiplier={multiplier}
+            category={currentQuestion.category}
+          />
+        )}
 
         <div className="grid grid-cols-2 gap-6 mt-8">
           {/* Team A Section */}
@@ -191,7 +245,7 @@ const LiveGameBoard = () => {
               <div className="text-5xl font-bold text-cyan-primary">
                 {teamAScore}
               </div>
-              {currentPhase === 'question' && !teamAnswers.A && (
+              {!answeredTeams.A && !answeredTeams.B && (
                 <Button
                   variant="primary"
                   size="lg"
@@ -219,7 +273,7 @@ const LiveGameBoard = () => {
               <div className="text-5xl font-bold text-orange-primary">
                 {teamBScore}
               </div>
-              {currentPhase === 'question' && teamAnswers.A && !teamAnswers.B && (
+              {answeredTeams.A && !answeredTeams.B && (
                 <Button
                   variant="secondary"
                   size="lg"
@@ -242,21 +296,35 @@ const LiveGameBoard = () => {
         </div>
 
         {/* Answer Board */}
-        <div className="mt-8">
-          <AnswerBoard
-            answers={currentQuestion?.answers || []}
-            revealedAnswers={revealedAnswers}
-            totalPoints={100}
-          />
-        </div>
+        {currentQuestion && (
+          <div className="mt-8">
+            <AnswerBoard
+              answers={currentQuestion.answers || []}
+              revealedAnswers={revealedAnswers}
+              totalPoints={100}
+            />
+          </div>
+        )}
 
         {/* Strikes */}
         <div className="mt-8 flex justify-center">
           <StrikeIndicator strikes={strikes} maxStrikes={3} size="large" />
         </div>
 
+        {/* Scores */}
+        <div className="mt-8">
+          <ScoreDisplay
+            teamAScore={teamAScore}
+            teamBScore={teamBScore}
+            teamAName="Team A"
+            teamBName="Team B"
+            size="medium"
+            showDifference
+          />
+        </div>
+
         {/* Next Question Button */}
-        {currentPhase === 'reveal' && (
+        {bothTeamsAnswered && (
           <div className="mt-8 flex justify-center">
             <Button
               variant="primary"

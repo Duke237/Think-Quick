@@ -18,7 +18,8 @@ const TeamAnswerInput = () => {
           fromTimer: true,
           team,
           teamAnswer: answer.trim()
-        }
+        },
+        replace: true // Use replace to avoid back button issues
       });
     }
   };
