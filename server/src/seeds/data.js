@@ -1,311 +1,244 @@
-// Tech-focused survey questions for Think Quick
-// Each answer's frequency represents how many people out of 100 gave that answer
-
-const techQuestions = [
+const QUESTIONS = [
   {
     questionId: 'TECH_001',
-    text: 'Name a programming language',
+    text: 'Name a popular web browser',
     category: 'Technology',
-    difficulty: 'easy',
-    sampleSize: 100,
     answers: [
-      { text: 'JavaScript', frequency: 28 },
-      { text: 'Python', frequency: 25 },
-      { text: 'Java', frequency: 18 },
-      { text: 'C++', frequency: 12 },
-      { text: 'C#', frequency: 8 },
-      { text: 'PHP', frequency: 5 },
-      { text: 'Ruby', frequency: 4 }
+      { text: 'Chrome', frequency: 65, points: 65, revealed: false },
+      { text: 'Safari', frequency: 15, points: 15, revealed: false },
+      { text: 'Firefox', frequency: 10, points: 10, revealed: false },
+      { text: 'Edge', frequency: 7, points: 7, revealed: false },
+      { text: 'Opera', frequency: 3, points: 3, revealed: false }
     ]
   },
   {
     questionId: 'TECH_002',
     text: 'Name a social media platform',
     category: 'Technology',
-    difficulty: 'easy',
-    sampleSize: 100,
     answers: [
-      { text: 'Facebook', frequency: 30 },
-      { text: 'Instagram', frequency: 25 },
-      { text: 'Twitter', frequency: 18 },
-      { text: 'TikTok', frequency: 15 },
-      { text: 'LinkedIn', frequency: 7 },
-      { text: 'Snapchat', frequency: 5 }
+      { text: 'Facebook', frequency: 35, points: 35, revealed: false },
+      { text: 'Instagram', frequency: 30, points: 30, revealed: false },
+      { text: 'TikTok', frequency: 20, points: 20, revealed: false },
+      { text: 'Twitter', frequency: 10, points: 10, revealed: false },
+      { text: 'Snapchat', frequency: 5, points: 5, revealed: false }
     ]
   },
   {
     questionId: 'TECH_003',
-    text: 'Name a web browser',
+    text: 'Name an operating system',
     category: 'Technology',
-    difficulty: 'easy',
-    sampleSize: 100,
     answers: [
-      { text: 'Chrome', frequency: 45 },
-      { text: 'Firefox', frequency: 20 },
-      { text: 'Safari', frequency: 15 },
-      { text: 'Edge', frequency: 12 },
-      { text: 'Opera', frequency: 5 },
-      { text: 'Brave', frequency: 3 }
+      { text: 'Windows', frequency: 50, points: 50, revealed: false },
+      { text: 'macOS', frequency: 25, points: 25, revealed: false },
+      { text: 'Linux', frequency: 12, points: 12, revealed: false },
+      { text: 'Android', frequency: 10, points: 10, revealed: false },
+      { text: 'iOS', frequency: 3, points: 3, revealed: false }
     ]
   },
   {
     questionId: 'TECH_004',
-    text: 'Name an operating system',
+    text: 'Name a programming language',
     category: 'Technology',
-    difficulty: 'easy',
-    sampleSize: 100,
     answers: [
-      { text: 'Windows', frequency: 42 },
-      { text: 'macOS', frequency: 25 },
-      { text: 'Linux', frequency: 15 },
-      { text: 'Android', frequency: 10 },
-      { text: 'iOS', frequency: 8 }
+      { text: 'Python', frequency: 40, points: 40, revealed: false },
+      { text: 'JavaScript', frequency: 30, points: 30, revealed: false },
+      { text: 'Java', frequency: 15, points: 15, revealed: false },
+      { text: 'C++', frequency: 8, points: 8, revealed: false },
+      { text: 'PHP', frequency: 7, points: 7, revealed: false }
     ]
   },
   {
     questionId: 'TECH_005',
-    text: 'Name a cloud storage service',
-    category: 'Technology',
-    difficulty: 'medium',
-    sampleSize: 100,
+    text: 'Name a video streaming service',
+    category: 'Entertainment',
     answers: [
-      { text: 'Google Drive', frequency: 35 },
-      { text: 'Dropbox', frequency: 25 },
-      { text: 'iCloud', frequency: 20 },
-      { text: 'OneDrive', frequency: 15 },
-      { text: 'Box', frequency: 5 }
+      { text: 'Netflix', frequency: 45, points: 45, revealed: false },
+      { text: 'YouTube', frequency: 30, points: 30, revealed: false },
+      { text: 'Disney+', frequency: 12, points: 12, revealed: false },
+      { text: 'Hulu', frequency: 8, points: 8, revealed: false },
+      { text: 'Amazon Prime', frequency: 5, points: 5, revealed: false }
     ]
   },
   {
     questionId: 'TECH_006',
-    text: 'Name a streaming service',
-    category: 'Entertainment',
-    difficulty: 'easy',
-    sampleSize: 100,
+    text: 'Name a smartphone brand',
+    category: 'Technology',
     answers: [
-      { text: 'Netflix', frequency: 35 },
-      { text: 'YouTube', frequency: 28 },
-      { text: 'Disney+', frequency: 15 },
-      { text: 'Hulu', frequency: 10 },
-      { text: 'Amazon Prime', frequency: 8 },
-      { text: 'HBO Max', frequency: 4 }
+      { text: 'Apple', frequency: 45, points: 45, revealed: false },
+      { text: 'Samsung', frequency: 35, points: 35, revealed: false },
+      { text: 'Huawei', frequency: 10, points: 10, revealed: false },
+      { text: 'Xiaomi', frequency: 6, points: 6, revealed: false },
+      { text: 'Google', frequency: 4, points: 4, revealed: false }
     ]
   },
   {
     questionId: 'TECH_007',
-    text: 'Name a tech company',
+    text: 'Name a search engine',
     category: 'Technology',
-    difficulty: 'easy',
-    sampleSize: 100,
     answers: [
-      { text: 'Apple', frequency: 28 },
-      { text: 'Google', frequency: 25 },
-      { text: 'Microsoft', frequency: 20 },
-      { text: 'Amazon', frequency: 12 },
-      { text: 'Meta', frequency: 8 },
-      { text: 'Samsung', frequency: 7 }
+      { text: 'Google', frequency: 75, points: 75, revealed: false },
+      { text: 'Bing', frequency: 12, points: 12, revealed: false },
+      { text: 'Yahoo', frequency: 8, points: 8, revealed: false },
+      { text: 'DuckDuckGo', frequency: 3, points: 3, revealed: false },
+      { text: 'Yandex', frequency: 2, points: 2, revealed: false }
     ]
   },
   {
     questionId: 'TECH_008',
-    text: 'Name a video game console',
-    category: 'Gaming',
-    difficulty: 'easy',
-    sampleSize: 100,
+    text: 'Name an email service',
+    category: 'Technology',
     answers: [
-      { text: 'PlayStation', frequency: 38 },
-      { text: 'Xbox', frequency: 30 },
-      { text: 'Nintendo Switch', frequency: 25 },
-      { text: 'PC', frequency: 7 }
+      { text: 'Gmail', frequency: 60, points: 60, revealed: false },
+      { text: 'Outlook', frequency: 20, points: 20, revealed: false },
+      { text: 'Yahoo Mail', frequency: 12, points: 12, revealed: false },
+      { text: 'ProtonMail', frequency: 5, points: 5, revealed: false },
+      { text: 'iCloud Mail', frequency: 3, points: 3, revealed: false }
     ]
   },
   {
     questionId: 'TECH_009',
-    text: 'Name a database system',
+    text: 'Name a cloud storage service',
     category: 'Technology',
-    difficulty: 'medium',
-    sampleSize: 100,
     answers: [
-      { text: 'MySQL', frequency: 30 },
-      { text: 'MongoDB', frequency: 22 },
-      { text: 'PostgreSQL', frequency: 18 },
-      { text: 'Oracle', frequency: 12 },
-      { text: 'SQL Server', frequency: 10 },
-      { text: 'Redis', frequency: 8 }
+      { text: 'Google Drive', frequency: 40, points: 40, revealed: false },
+      { text: 'Dropbox', frequency: 25, points: 25, revealed: false },
+      { text: 'iCloud', frequency: 20, points: 20, revealed: false },
+      { text: 'OneDrive', frequency: 12, points: 12, revealed: false },
+      { text: 'Box', frequency: 3, points: 3, revealed: false }
     ]
   },
   {
     questionId: 'TECH_010',
-    text: 'Name a code editor or IDE',
+    text: 'Name a messaging app',
     category: 'Technology',
-    difficulty: 'medium',
-    sampleSize: 100,
     answers: [
-      { text: 'Visual Studio Code', frequency: 45 },
-      { text: 'IntelliJ IDEA', frequency: 18 },
-      { text: 'Sublime Text', frequency: 12 },
-      { text: 'Vim', frequency: 10 },
-      { text: 'Atom', frequency: 8 },
-      { text: 'Notepad++', frequency: 7 }
+      { text: 'WhatsApp', frequency: 45, points: 45, revealed: false },
+      { text: 'Messenger', frequency: 25, points: 25, revealed: false },
+      { text: 'Telegram', frequency: 15, points: 15, revealed: false },
+      { text: 'Signal', frequency: 10, points: 10, revealed: false },
+      { text: 'Discord', frequency: 5, points: 5, revealed: false }
     ]
   },
   {
     questionId: 'TECH_011',
-    text: 'Name a JavaScript framework or library',
-    category: 'Technology',
-    difficulty: 'medium',
-    sampleSize: 100,
+    text: 'Name a video game console',
+    category: 'Gaming',
     answers: [
-      { text: 'React', frequency: 40 },
-      { text: 'Vue', frequency: 22 },
-      { text: 'Angular', frequency: 18 },
-      { text: 'jQuery', frequency: 10 },
-      { text: 'Svelte', frequency: 6 },
-      { text: 'Next.js', frequency: 4 }
+      { text: 'PlayStation', frequency: 40, points: 40, revealed: false },
+      { text: 'Xbox', frequency: 30, points: 30, revealed: false },
+      { text: 'Nintendo Switch', frequency: 25, points: 25, revealed: false },
+      { text: 'PC', frequency: 4, points: 4, revealed: false },
+      { text: 'Steam Deck', frequency: 1, points: 1, revealed: false }
     ]
   },
   {
     questionId: 'TECH_012',
-    text: 'Name a version control system',
-    category: 'Technology',
-    difficulty: 'hard',
-    sampleSize: 100,
+    text: 'Name a music streaming service',
+    category: 'Entertainment',
     answers: [
-      { text: 'Git', frequency: 75 },
-      { text: 'SVN', frequency: 12 },
-      { text: 'Mercurial', frequency: 8 },
-      { text: 'Perforce', frequency: 5 }
+      { text: 'Spotify', frequency: 50, points: 50, revealed: false },
+      { text: 'Apple Music', frequency: 30, points: 30, revealed: false },
+      { text: 'YouTube Music', frequency: 12, points: 12, revealed: false },
+      { text: 'Amazon Music', frequency: 6, points: 6, revealed: false },
+      { text: 'Tidal', frequency: 2, points: 2, revealed: false }
     ]
   },
   {
     questionId: 'TECH_013',
-    text: 'Name a smartphone brand',
+    text: 'Name a coding editor or IDE',
     category: 'Technology',
-    difficulty: 'easy',
-    sampleSize: 100,
     answers: [
-      { text: 'Apple', frequency: 35 },
-      { text: 'Samsung', frequency: 32 },
-      { text: 'Huawei', frequency: 12 },
-      { text: 'Xiaomi', frequency: 10 },
-      { text: 'Google', frequency: 6 },
-      { text: 'OnePlus', frequency: 5 }
+      { text: 'Visual Studio Code', frequency: 55, points: 55, revealed: false },
+      { text: 'IntelliJ IDEA', frequency: 20, points: 20, revealed: false },
+      { text: 'Sublime Text', frequency: 12, points: 12, revealed: false },
+      { text: 'Atom', frequency: 8, points: 8, revealed: false },
+      { text: 'Vim', frequency: 5, points: 5, revealed: false }
     ]
   },
   {
     questionId: 'TECH_014',
-    text: 'Name a cybersecurity threat',
+    text: 'Name a payment app',
     category: 'Technology',
-    difficulty: 'medium',
-    sampleSize: 100,
     answers: [
-      { text: 'Virus', frequency: 28 },
-      { text: 'Malware', frequency: 25 },
-      { text: 'Phishing', frequency: 20 },
-      { text: 'Ransomware', frequency: 15 },
-      { text: 'Hacking', frequency: 12 }
+      { text: 'PayPal', frequency: 40, points: 40, revealed: false },
+      { text: 'Venmo', frequency: 25, points: 25, revealed: false },
+      { text: 'Cash App', frequency: 20, points: 20, revealed: false },
+      { text: 'Zelle', frequency: 10, points: 10, revealed: false },
+      { text: 'Apple Pay', frequency: 5, points: 5, revealed: false }
     ]
   },
   {
     questionId: 'TECH_015',
-    text: 'Name a project management tool',
+    text: 'Name an online shopping website',
     category: 'Technology',
-    difficulty: 'medium',
-    sampleSize: 100,
     answers: [
-      { text: 'Jira', frequency: 30 },
-      { text: 'Trello', frequency: 28 },
-      { text: 'Asana', frequency: 20 },
-      { text: 'Monday.com', frequency: 12 },
-      { text: 'Notion', frequency: 10 }
-    ]
-  }
-];
-
-// Fast Money Questions - 5 quick questions for final round
-const fastMoneyQuestions = [
-  {
-    questionId: 'FM_001',
-    text: 'Name a file extension',
-    category: 'Technology',
-    difficulty: 'easy',
-    sampleSize: 100,
-    isFastMoney: true,
-    answers: [
-      { text: '.pdf', frequency: 30 },
-      { text: '.jpg', frequency: 25 },
-      { text: '.txt', frequency: 18 },
-      { text: '.doc', frequency: 15 },
-      { text: '.zip', frequency: 12 }
+      { text: 'Amazon', frequency: 60, points: 60, revealed: false },
+      { text: 'eBay', frequency: 20, points: 20, revealed: false },
+      { text: 'Walmart', frequency: 10, points: 10, revealed: false },
+      { text: 'Etsy', frequency: 7, points: 7, revealed: false },
+      { text: 'AliExpress', frequency: 3, points: 3, revealed: false }
     ]
   },
   {
-    questionId: 'FM_002',
-    text: 'Name something you do on a computer',
+    questionId: 'GENERAL_001',
+    text: 'Name a popular soft drink',
     category: 'General',
-    difficulty: 'easy',
-    sampleSize: 100,
-    isFastMoney: true,
     answers: [
-      { text: 'Browse the internet', frequency: 35 },
-      { text: 'Email', frequency: 25 },
-      { text: 'Watch videos', frequency: 20 },
-      { text: 'Play games', frequency: 12 },
-      { text: 'Work', frequency: 8 }
+      { text: 'Coca-Cola', frequency: 45, points: 45, revealed: false },
+      { text: 'Pepsi', frequency: 30, points: 30, revealed: false },
+      { text: 'Sprite', frequency: 12, points: 12, revealed: false },
+      { text: 'Fanta', frequency: 8, points: 8, revealed: false },
+      { text: '7UP', frequency: 5, points: 5, revealed: false }
     ]
   },
   {
-    questionId: 'FM_003',
-    text: 'Name a computer key',
-    category: 'Technology',
-    difficulty: 'easy',
-    sampleSize: 100,
-    isFastMoney: true,
+    questionId: 'GENERAL_002',
+    text: 'Name a fast food restaurant',
+    category: 'General',
     answers: [
-      { text: 'Enter', frequency: 32 },
-      { text: 'Space', frequency: 28 },
-      { text: 'Shift', frequency: 18 },
-      { text: 'Control', frequency: 12 },
-      { text: 'Delete', frequency: 10 }
+      { text: 'McDonald\'s', frequency: 50, points: 50, revealed: false },
+      { text: 'KFC', frequency: 20, points: 20, revealed: false },
+      { text: 'Burger King', frequency: 15, points: 15, revealed: false },
+      { text: 'Subway', frequency: 10, points: 10, revealed: false },
+      { text: 'Pizza Hut', frequency: 5, points: 5, revealed: false }
     ]
   },
   {
-    questionId: 'FM_004',
-    text: 'Name a tech acronym',
-    category: 'Technology',
-    difficulty: 'medium',
-    sampleSize: 100,
-    isFastMoney: true,
+    questionId: 'GENERAL_003',
+    text: 'Name a popular car brand',
+    category: 'General',
     answers: [
-      { text: 'CPU', frequency: 25 },
-      { text: 'GPU', frequency: 22 },
-      { text: 'RAM', frequency: 20 },
-      { text: 'USB', frequency: 18 },
-      { text: 'WiFi', frequency: 15 }
+      { text: 'Toyota', frequency: 35, points: 35, revealed: false },
+      { text: 'Honda', frequency: 25, points: 25, revealed: false },
+      { text: 'Ford', frequency: 20, points: 20, revealed: false },
+      { text: 'BMW', frequency: 12, points: 12, revealed: false },
+      { text: 'Tesla', frequency: 8, points: 8, revealed: false }
     ]
   },
   {
-    questionId: 'FM_005',
-    text: 'Name a popular website',
-    category: 'Technology',
-    difficulty: 'easy',
-    sampleSize: 100,
-    isFastMoney: true,
+    questionId: 'GENERAL_004',
+    text: 'Name a popular sport',
+    category: 'General',
     answers: [
-      { text: 'Google', frequency: 40 },
-      { text: 'YouTube', frequency: 25 },
-      { text: 'Facebook', frequency: 18 },
-      { text: 'Amazon', frequency: 10 },
-      { text: 'Wikipedia', frequency: 7 }
+      { text: 'Football', frequency: 40, points: 40, revealed: false },
+      { text: 'Basketball', frequency: 30, points: 30, revealed: false },
+      { text: 'Soccer', frequency: 20, points: 20, revealed: false },
+      { text: 'Tennis', frequency: 7, points: 7, revealed: false },
+      { text: 'Baseball', frequency: 3, points: 3, revealed: false }
+    ]
+  },
+  {
+    questionId: 'GENERAL_005',
+    text: 'Name a coffee chain',
+    category: 'General',
+    answers: [
+      { text: 'Starbucks', frequency: 70, points: 70, revealed: false },
+      { text: 'Dunkin', frequency: 15, points: 15, revealed: false },
+      { text: 'Costa Coffee', frequency: 8, points: 8, revealed: false },
+      { text: 'Tim Hortons', frequency: 5, points: 5, revealed: false },
+      { text: 'Peet\'s Coffee', frequency: 2, points: 2, revealed: false }
     ]
   }
 ];
 
-// Combine all questions
-const allQuestions = [...techQuestions, ...fastMoneyQuestions];
-
-module.exports = {
-  techQuestions,
-  fastMoneyQuestions,
-  allQuestions
-};
+module.exports = { QUESTIONS };
