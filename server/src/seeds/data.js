@@ -54,7 +54,7 @@ const QUESTIONS = [
     answers: [
       { text: 'Netflix', frequency: 45, points: 45, revealed: false },
       { text: 'YouTube', frequency: 30, points: 30, revealed: false },
-      { text: 'Disney+', frequency: 12, points: 12, revealed: false },
+      { text: 'Disney Plus', frequency: 12, points: 12, revealed: false },
       { text: 'Hulu', frequency: 8, points: 8, revealed: false },
       { text: 'Amazon Prime', frequency: 5, points: 5, revealed: false }
     ]
@@ -184,7 +184,7 @@ const QUESTIONS = [
     text: 'Name a popular soft drink',
     category: 'General',
     answers: [
-      { text: 'Coca-Cola', frequency: 45, points: 45, revealed: false },
+      { text: 'Coca Cola', frequency: 45, points: 45, revealed: false },
       { text: 'Pepsi', frequency: 30, points: 30, revealed: false },
       { text: 'Sprite', frequency: 12, points: 12, revealed: false },
       { text: 'Fanta', frequency: 8, points: 8, revealed: false },
@@ -196,7 +196,7 @@ const QUESTIONS = [
     text: 'Name a fast food restaurant',
     category: 'General',
     answers: [
-      { text: 'McDonald\'s', frequency: 50, points: 50, revealed: false },
+      { text: 'McDonalds', frequency: 50, points: 50, revealed: false },
       { text: 'KFC', frequency: 20, points: 20, revealed: false },
       { text: 'Burger King', frequency: 15, points: 15, revealed: false },
       { text: 'Subway', frequency: 10, points: 10, revealed: false },
@@ -236,7 +236,7 @@ const QUESTIONS = [
       { text: 'Dunkin', frequency: 15, points: 15, revealed: false },
       { text: 'Costa Coffee', frequency: 8, points: 8, revealed: false },
       { text: 'Tim Hortons', frequency: 5, points: 5, revealed: false },
-      { text: 'Peet\'s Coffee', frequency: 2, points: 2, revealed: false }
+      { text: 'Peets Coffee', frequency: 2, points: 2, revealed: false }
     ]
   }
 ];

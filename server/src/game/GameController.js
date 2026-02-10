@@ -1,5 +1,8 @@
 const gameState = require('./GameState');
 const GameSession = require('../models/GameSession');
+const timerManager = require('./TimerManager');
+const questionHelpers = require('../utils/questionHelpers'); // ADD THIS LINE
+const Question = require('../models/Question'); // ADD THIS TOO
 const { 
   findMatchingAnswer, 
   calculatePoints 
@@ -11,6 +14,56 @@ const {
 } = require('../utils/questionHelpers');
 
 class GameController {
+
+  async loadQuestion(sessionId, questionId = null, multiplier = 1) {
+    try {
+      const session = gameState.getSession(sessionId);
+      if (!session) {
+        return { success: false, error: 'Session not found' };
+      }
+
+      let question;
+      
+      if (questionId) {
+        // Load specific question by ID
+        question = await Question.findOne({ questionId });
+      } else {
+        // Load random question
+        const count = await Question.countDocuments();
+        if (count === 0) {
+          return { success: false, error: 'No questions in database' };
+        }
+        
+        const random = Math.floor(Math.random() * count);
+        question = await Question.findOne().skip(random);
+      }
+
+      if (!question) {
+        return { success: false, error: 'Question not found' };
+      }
+
+      // Convert to plain object to ensure all data is included
+      const questionData = question.toObject();
+      
+      console.log('✅ Question loaded:', questionData.text, `(${questionData.answers?.length} answers)`);
+
+      // Start new round
+      const round = gameState.startRound(sessionId, questionData, multiplier);
+
+      return {
+        success: true,
+        question: questionData, // Full question with answers array
+        round: {
+          roundNumber: round.roundNumber,
+          multiplier: round.multiplier
+        }
+      };
+    } catch (error) {
+      console.error('Load question error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
   /**
    * Create a new game session
    */
@@ -145,70 +198,52 @@ class GameController {
   /**
    * Load a new question for the round
    */
-  async loadQuestion(sessionId, questionId = null, multiplier = null) {
-    try {
-      const session = gameState.getSession(sessionId);
-      if (!session) {
-        return {
-          success: false,
-          error: 'Game session not found'
-        };
-      }
-
-      let question;
-      
-      if (questionId) {
-        // Load specific question
-        question = await getQuestionById(questionId);
-      } else {
-        // Get random question (exclude already used)
-        const usedQuestionIds = session.rounds.map(r => r.questionId);
-        question = await getRandomQuestion(usedQuestionIds, false);
-      }
-
-      if (!question) {
-        return {
-          success: false,
-          error: 'No available questions'
-        };
-      }
-
-      // Determine multiplier based on round number
-      const roundNumber = session.currentRound + 1;
-      const roundMultiplier = multiplier || session.settings.roundMultipliers[Math.min(roundNumber - 1, 2)] || 1;
-
-      // Start the round
-      const round = gameState.startRound(sessionId, question, roundMultiplier);
-
-      // Update database
-      const dbSession = await GameSession.findOne({ sessionId });
-      if (dbSession) {
-        await dbSession.startRound(question.questionId, roundMultiplier, session.activeTeam);
-      }
-
-      console.log(`✅ Question loaded: ${question.text} (Round ${roundNumber}, ${roundMultiplier}x)`);
-
-      return {
-        success: true,
-        question: {
-          questionId: question.questionId,
-          text: question.text,
-          category: question.category,
-          answerCount: question.answers.length
-        },
-        round: {
-          roundNumber,
-          multiplier: roundMultiplier
-        }
-      };
-    } catch (error) {
-      console.error('❌ Error loading question:', error);
-      return {
-        success: false,
-        error: error.message
-      };
+  async loadQuestion(sessionId, questionId = null, multiplier = 1) {
+  try {
+    const session = gameState.getSession(sessionId);
+    if (!session) {
+      return { success: false, error: 'Session not found' };
     }
+
+    let question;
+    
+    if (questionId) {
+      // Load specific question
+      question = await questionHelpers.getQuestionById(questionId);
+    } else {
+      // Load random question
+      question = await questionHelpers.getRandomQuestion();
+    }
+
+    if (!question) {
+      return { success: false, error: 'No questions available' };
+    }
+
+    // IMPORTANT: Convert to plain object and ensure answers are included
+    const questionData = question.toObject ? question.toObject() : question;
+    
+    console.log('Question loaded with answers:', {
+      id: questionData.questionId,
+      text: questionData.text,
+      answersCount: questionData.answers?.length
+    });
+
+    // Start new round
+    const round = gameState.startRound(sessionId, questionData, multiplier);
+
+    return {
+      success: true,
+      question: questionData, // Send full question with answers
+      round: {
+        roundNumber: round.roundNumber,
+        multiplier: round.multiplier
+      }
+    };
+  } catch (error) {
+    console.error('Load question error:', error);
+    return { success: false, error: error.message };
   }
+}
 
   /**
    * Submit an answer

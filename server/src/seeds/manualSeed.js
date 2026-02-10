@@ -1,9 +1,20 @@
+const mongoose = require('mongoose');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 const Question = require('../models/Question');
 const { QUESTIONS } = require('./data');
 
-async function seedQuestions() {
+async function seedDatabase() {
+  let mongoServer;
+  
   try {
-    console.log('🌱 Starting database seeding...');
+    console.log('🌱 Starting manual database seeding...');
+    
+    // Start in-memory MongoDB
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
+    
+    await mongoose.connect(mongoUri);
+    console.log('✅ Connected to in-memory MongoDB');
 
     // Clear existing questions
     const deletedCount = await Question.deleteMany({});
@@ -24,11 +35,18 @@ async function seedQuestions() {
       console.log(`   ${category}: ${count} questions`);
     });
 
-    return insertedQuestions;
+    console.log('✅ Seeding completed successfully');
+    
+    await mongoose.disconnect();
+    await mongoServer.stop();
+    process.exit(0);
   } catch (error) {
-    console.error('❌ Seeding error:', error.message);
-    throw error;
+    console.error('❌ Seeding error:', error);
+    if (mongoServer) {
+      await mongoServer.stop();
+    }
+    process.exit(1);
   }
 }
 
-module.exports = { seedQuestions };
+seedDatabase();

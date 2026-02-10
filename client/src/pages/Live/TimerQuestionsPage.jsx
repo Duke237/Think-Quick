@@ -77,21 +77,22 @@ const TimerQuestionsPage = () => {
   }, [isActive, timeRemaining]);
 
   const handleTimeUp = () => {
-    setIsActive(false);
-    audioService.play('timerEnd', 0.8);
-    stopListening();
-    
-    // Navigate to answer input page
-    setTimeout(() => {
-      navigate('/live/answer-input', {
-        state: {
-          sessionId,
-          team,
-          questions
-        }
-      });
-    }, 2000);
-  };
+  setIsActive(false);
+  audioService.play('timerEnd', 0.8);
+  stopListening();
+  
+  // Navigate to answer input page
+  setTimeout(() => {
+    navigate('/live/answer-input', {
+      state: {
+        sessionId,
+        team,
+        questions,
+        teamAAnswers: location.state?.teamAAnswers || [] // Pass through
+      }
+    });
+  }, 2000);
+};
 
   const getColor = () => {
     if (timeRemaining <= 5) return '#ef4444'; // red
