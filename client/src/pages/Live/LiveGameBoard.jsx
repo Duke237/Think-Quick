@@ -26,30 +26,30 @@ const LiveGameBoard = () => {
   const [gamePhase, setGamePhase] = useState('setup'); 
   const [showResults, setShowResults] = useState(false);
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const sid = urlParams.get('session') || localStorage.getItem('sessionId');
-    
-    if (!sid) {
-      navigate('/live/setup');
-      return;
-    }
+useEffect(() => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const sid = urlParams.get('session') || localStorage.getItem('sessionId');
+  
+  if (!sid) {
+    navigate('/live/setup');
+    return;
+  }
 
-    setSessionId(sid);
-    socketService.connect();
-    
-    // Check if we already have questions in localStorage
-    const storedQuestions = localStorage.getItem(`questions_${sid}`);
-    if (storedQuestions) {
-      const parsedQuestions = JSON.parse(storedQuestions);
-      console.log('Loaded questions from localStorage:', parsedQuestions);
-      setQuestions(parsedQuestions);
-      setLoading(false);
-    } else {
-      // Load new questions
-      loadQuestions(sid);
-    }
-  }, [navigate]);
+  setSessionId(sid);
+  socketService.connect();
+  
+  // Check if we already have questions in localStorage
+  const storedQuestions = localStorage.getItem(`questions_${sid}`);
+  if (storedQuestions) {
+    const parsedQuestions = JSON.parse(storedQuestions);
+    console.log('Loaded questions from localStorage:', parsedQuestions.length);
+    setQuestions(parsedQuestions); // THIS LINE IS CRITICAL
+    setLoading(false);
+  } else {
+    // Load new questions
+    loadQuestions(sid);
+  }
+}, [navigate]);
 
   // Handle return from answer input
   useEffect(() => {
@@ -124,69 +124,88 @@ const LiveGameBoard = () => {
     setLoading(false);
   };
 
-  const calculateScoreForAnswers = (answers, opponentAnswers = []) => {
-    console.log('=== Calculating Scores ===');
-    console.log('Questions available:', questions.length);
+ const calculateScoreForAnswers = (answers, opponentAnswers = []) => {
+  // Get questions from localStorage if state is empty
+  let questionsToUse = questions;
+  if (questionsToUse.length === 0) {
+    const storedQuestions = localStorage.getItem(`questions_${sessionId}`);
+    if (storedQuestions) {
+      questionsToUse = JSON.parse(storedQuestions);
+      console.log('Retrieved questions from localStorage for scoring:', questionsToUse.length);
+    }
+  }
+
+  console.log('========================================');
+  console.log('CALCULATE SCORE DEBUG');
+  console.log('========================================');
+  console.log('Questions to use:', questionsToUse.length);
+  
+  return answers.map((answer, index) => {
+    const question = questionsToUse[index];
     
-    return answers.map((answer, index) => {
-      const question = questions[index];
+    console.log(`\n--- Question ${index + 1} ---`);
+    
+    if (!question) {
+      console.log(`❌ No question at index ${index}`);
+      return { ...answer, matchedAnswer: null, points: 0, isDuplicate: false };
+    }
+
+    if (!answer.answer || answer.answer.trim() === '') {
+      console.log(`No answer given`);
+      return { ...answer, matchedAnswer: null, points: 0, isDuplicate: false };
+    }
+
+    const playerAnswer = answer.answer.toLowerCase().trim();
+    console.log(`Question: "${question.text}"`);
+    console.log(`Player answered: "${playerAnswer}"`);
+
+    // Check duplicate
+    if (opponentAnswers.length > 0) {
+      const duplicate = opponentAnswers.find(
+        oa => oa.answer && oa.answer.toLowerCase().trim() === playerAnswer
+      );
       
-      if (!question) {
-        console.log(`❌ Q${index + 1}: No question at index ${index}`);
-        return { ...answer, matchedAnswer: null, points: 0, isDuplicate: false };
+      if (duplicate) {
+        console.log(`❌ DUPLICATE of opponent's answer`);
+        audioService.play('wrong', 0.7);
+        return { ...answer, matchedAnswer: null, points: 0, isDuplicate: true };
       }
+    }
 
-      if (!answer.answer || answer.answer.trim() === '') {
-        console.log(`Q${index + 1}: No answer given`);
-        return { ...answer, matchedAnswer: null, points: 0, isDuplicate: false };
-      }
+    if (!question.answers || !Array.isArray(question.answers) || question.answers.length === 0) {
+      console.log(`❌ No survey answers available`);
+      return { ...answer, matchedAnswer: null, points: 0, isDuplicate: false };
+    }
 
-      const playerAnswer = answer.answer.toLowerCase().trim();
-      console.log(`Q${index + 1}: "${question.text}"`);
-      console.log(`  Player: "${playerAnswer}"`);
-      console.log(`  Survey answers:`, question.answers?.map(a => a.text));
-
-      // Check duplicate (Team B only)
-      if (opponentAnswers.length > 0) {
-        const duplicate = opponentAnswers.find(
-          oa => oa.answer && oa.answer.toLowerCase().trim() === playerAnswer
-        );
-        
-        if (duplicate) {
-          console.log(`  ❌ DUPLICATE!`);
-          audioService.play('wrong', 0.7);
-          return { ...answer, matchedAnswer: null, points: 0, isDuplicate: true };
-        }
-      }
-
-      if (!question.answers || question.answers.length === 0) {
-        console.log(`  ❌ No survey answers in database`);
-        return { ...answer, matchedAnswer: null, points: 0, isDuplicate: false };
-      }
-
-      // Find exact match (case-insensitive)
-      const matched = question.answers.find(surveyAnswer => {
-        const surveyText = surveyAnswer.text.toLowerCase().trim();
-        return surveyText === playerAnswer;
-      });
-
-      if (matched) {
-        console.log(`  ✅ MATCH! Survey: "${matched.text}", Points: ${matched.frequency}`);
-        audioService.play('correct', 0.6);
-        return {
-          ...answer,
-          matchedAnswer: matched.text,
-          points: matched.frequency,
-          isDuplicate: false
-        };
-      } else {
-        console.log(`  ❌ NO MATCH`);
-        audioService.play('wrong', 0.5);
-        return { ...answer, matchedAnswer: null, points: 0, isDuplicate: false };
-      }
+    console.log(`Survey has ${question.answers.length} answers:`);
+    question.answers.forEach((a, i) => {
+      console.log(`  ${i + 1}. "${a.text}" (${a.frequency} pts)`);
     });
-  };
 
+    // Find match
+    const matched = question.answers.find(surveyAnswer => {
+      const surveyText = surveyAnswer.text.toLowerCase().trim();
+      const isMatch = surveyText === playerAnswer;
+      console.log(`  Comparing "${surveyText}" === "${playerAnswer}" ? ${isMatch}`);
+      return isMatch;
+    });
+
+    if (matched) {
+      console.log(`✅ MATCH FOUND! "${matched.text}" = ${matched.frequency} points`);
+      audioService.play('correct', 0.6);
+      return {
+        ...answer,
+        matchedAnswer: matched.text,
+        points: matched.frequency,
+        isDuplicate: false
+      };
+    } else {
+      console.log(`❌ NO MATCH in survey answers`);
+      audioService.play('wrong', 0.5);
+      return { ...answer, matchedAnswer: null, points: 0, isDuplicate: false };
+    }
+  });
+};
   const handleStartTeamA = () => {
     console.log('=== Starting Team A ===');
     console.log('Questions:', questions);

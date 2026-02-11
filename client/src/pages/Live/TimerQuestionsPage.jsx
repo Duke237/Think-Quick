@@ -11,8 +11,17 @@ const TimerQuestionsPage = () => {
     sessionId, 
     team, 
     questions = [], 
-    duration = 20
+    duration = 20,
+    teamAAnswers = []
   } = location.state || {};
+
+  console.log('========================================');
+  console.log('TIMER PAGE - Questions received:');
+  console.log('========================================');
+  console.log('Questions:', questions);
+  console.log('Questions length:', questions.length);
+  console.log('Questions[0]:', questions[0]);
+  console.log('Questions[0].answers:', questions[0]?.answers);
 
   const [timeRemaining, setTimeRemaining] = useState(duration);
   const [isActive, setIsActive] = useState(false);

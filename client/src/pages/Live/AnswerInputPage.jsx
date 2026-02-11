@@ -8,6 +8,15 @@ const AnswerInputPage = () => {
   const location = useLocation();
   const { sessionId, team, questions = [], teamAAnswers = [] } = location.state || {};
 
+  console.log('========================================');
+  console.log('ANSWER INPUT PAGE - Questions received:');
+  console.log('========================================');
+  console.log('Questions:', questions);
+  console.log('Questions length:', questions.length);
+  console.log('Questions[0]:', questions[0]);
+  console.log('Questions[0].answers:', questions[0]?.answers);
+  
+  // Rest of component...
   const [answers, setAnswers] = useState(
     questions.map(() => ({ answer: '', points: 0 }))
   );
